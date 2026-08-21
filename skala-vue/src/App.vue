@@ -6,9 +6,8 @@ import { RouterLink, RouterView } from 'vue-router'
 <template>
   <header class="app-header">
     <nav class="view-nav">
-      <RouterLink to="/">Home</RouterLink>
-      <RouterLink to="/about">About</RouterLink>
-      <RouterLink to="/weather">Weather</RouterLink>
+      <RouterLink to="/">날씨 대시보드</RouterLink>
+      <RouterLink to="/about">서비스 소개</RouterLink>
     </nav>
   </header>
 

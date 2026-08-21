@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import PropsEmitsParent from './PropsEmitsParent.vue';
 import SampleEighteen from './SampleEighteen.vue';
 import SampleNineteen from './SampleNineteen.vue';
 import SampleTwenty from './SampleTwenty.vue';
@@ -6,6 +7,9 @@ import SampleTwentyFour from './SampleTwentyFour.vue';
 import SampleTwentyOne from './SampleTwentyOne.vue';
 import SampleTwentyThree from './SampleTwentyThree.vue';
 import SampleTwentyTwo from './SampleTwentyTwo.vue';
+import SlotDefaultParent from './SlotDefaultParent.vue';
+import SlotNamedParent from './SlotNamedParent.vue';
+import SlotScopedParent from './SlotScopedParent.vue';
 
 </script>
 
@@ -18,6 +22,11 @@ import SampleTwentyTwo from './SampleTwentyTwo.vue';
     <SampleTwentyTwo />
     <SampleTwentyThree />
     <SampleTwentyFour />
+    <SampleTwentyFive />
+    <PropsEmitsParent />
+    <SlotDefaultParent />
+    <SlotNamedParent />
+    <SlotScopedParent />
   </div>
 </template>
 
