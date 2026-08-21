@@ -1,0 +1,27 @@
+{
+  "lat": 37.5665,
+  "lon": 126.978,
+  "timezone": "Asia/Seoul",
+  "timezone_offset": 32400,
+  "data": [
+    {
+      "dt": 1787292000,
+      "sunrise": 1787258100,
+      "sunset": 1787307000,
+      "temp": 23.8,
+      "feels_like": 24.5,
+      "pressure": 1005,
+      "humidity": 85,
+      "dew_point": 20.9,
+      "clouds": 92,
+      "uvi": 1.2,
+      "visibility": 6000,
+      "wind_speed": 5.4,
+      "wind_deg": 90,
+      "rain": { "1h": 3.5 },
+      "weather": [
+        { "id": 501, "main": "Rain", "description": "moderate rain", "icon": "10d" }
+      ]
+    }
+  ]
+}

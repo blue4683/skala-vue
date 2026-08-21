@@ -1,5 +1,9 @@
 <script setup>
-defineProps({
+import { computed } from 'vue'
+import { ArrowRight, Location } from '@element-plus/icons-vue'
+import { useConfigStore } from '@/stores/configStore'
+
+const props = defineProps({
     city: {
         type: Object,
         required: true,
@@ -7,43 +11,57 @@ defineProps({
 })
 
 const emit = defineEmits(['select-card', 'click-detail'])
+
+const configStore = useConfigStore()
+
+const displayTemp = computed(() => {
+    const celsius = props.city.temp
+    const value = configStore.unit === 'fahrenheit' ? (celsius * 9) / 5 + 32 : celsius
+    return value.toFixed(1)
+})
 </script>
 
 <template>
-    <div class="city-card" @click="emit('select-card', city)">
-        <div class="city-info">
-            <p class="city-name">{{ city.name }} ({{ city.status }})</p>
-            <p class="city-temp">현재 기온: {{ city.temp }}℃ / 상대습도: {{ city.humidity }}%</p>
-            <div class="badge-row">
-                <span :class="['badge', city.temp >= 25 ? 'badge-hot' : 'badge-cool']">
-                    {{ city.temp >= 25 ? '🔥 더움 (25도 이상)' : '❄️ 선선함 (25도 미만)' }}
-                </span>
-                <span :class="['badge', city.discomfortLevel.className]">
-                    {{ city.discomfortLevel.emoji }} 불쾌지수 {{ city.discomfortIndex.toFixed(1) }} ({{ city.discomfortLevel.label }})
-                </span>
-            </div>
-        </div>
-        <button class="btn-external" @click.stop="emit('click-detail', city.id)">상세보기</button>
+  <article class="city-card" tabindex="0" @click="emit('select-card', city)" @keydown.enter="emit('select-card', city)">
+    <div class="condition-icon" :class="{ rainy: city.status === '비', cloudy: city.status === '구름' }">
+      {{ city.status === '비' ? '☂' : city.status === '구름' ? '☁' : '☀' }}
     </div>
+    <div class="city-info">
+      <div class="city-heading"><el-icon><Location /></el-icon><strong>{{ city.name }}</strong><span>{{ city.status }}</span></div>
+      <p class="city-temp"><b>{{ displayTemp }}{{ configStore.unitSymbol }}</b><span>습도 {{ city.humidity }}%</span></p>
+      <div class="badge-row">
+        <el-tag :type="city.temp >= 25 ? 'danger' : 'primary'" effect="light" round size="small">
+          {{ city.temp >= 25 ? '더움' : '선선함' }}
+        </el-tag>
+        <el-tag type="warning" effect="light" round size="small">
+          불쾌지수 {{ city.discomfortIndex.toFixed(1) }} · {{ city.discomfortLevel.label }}
+        </el-tag>
+      </div>
+    </div>
+    <el-button class="detail-button" text type="primary" @click.stop="emit('click-detail', city.name)">
+      상세 <el-icon class="el-icon--right"><ArrowRight /></el-icon>
+    </el-button>
+  </article>
 </template>
 
 <style scoped>
 .city-card {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 0.9rem 1rem;
-    margin-top: 0.75rem;
-    background-color: #fff;
-    border: 1px solid #e2e5eb;
-    border-radius: 8px;
+    gap: 15px;
+    padding: 15px 16px;
+    margin-top: 10px;
+    background: #fff;
+    border: 1px solid #e7eef5;
+    border-radius: 14px;
     cursor: pointer;
-    transition: box-shadow 0.15s ease, transform 0.1s ease;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
 .city-card:hover {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border-color: #b9d7ef;
+    box-shadow: 0 10px 22px rgba(39, 93, 139, 0.09);
+    transform: translateY(-1px);
 }
 
 .city-card:first-of-type {
@@ -53,83 +71,46 @@ const emit = defineEmits(['select-card', 'click-detail'])
 .city-info {
     display: flex;
     flex-direction: column;
-    gap: 0.35rem;
+    flex: 1;
+    gap: 7px;
 }
 
-.city-name {
-    margin: 0;
-    font-weight: 600;
-    color: #1f2430;
+.condition-icon {
+    display: grid;
+    width: 44px;
+    height: 44px;
+    flex: none;
+    place-items: center;
+    border-radius: 14px;
+    color: #d88213;
+    background: #fff4d6;
+    font-size: 1.4rem;
 }
 
-.city-temp {
-    margin: 0;
-    color: #4a5062;
-    font-size: 0.9rem;
-}
+.condition-icon.rainy { color: #327ec8; background: #e5f2ff; }
+.condition-icon.cloudy { color: #768ba1; background: #edf2f7; }
 
-.badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    padding: 0.2rem 0.6rem;
-    border-radius: 999px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: #fff;
-    width: fit-content;
-}
+.city-heading { display: flex; align-items: center; gap: 5px; color: var(--color-muted); font-size: 0.83rem; }
+.city-heading strong { color: var(--color-heading); font-size: 1rem; }
+.city-heading span::before { content: '·'; margin-right: 5px; color: #a2b1c1; }
 
-.badge-hot {
-    background-color: #e15b5b;
-}
-
-.badge-cool {
-    background-color: #4a90d9;
-}
+.city-temp { display: flex; align-items: baseline; gap: 9px; color: var(--color-muted); font-size: 0.82rem; }
+.city-temp b { color: #1b3350; font-size: 1.25rem; letter-spacing: -0.04em; }
+.city-temp span { white-space: nowrap; }
 
 .badge-row {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.4rem;
+    gap: 5px;
 }
 
-.badge-di-low {
-    background-color: #4a90d9;
-}
-
-.badge-di-normal {
-    background-color: #5cb85c;
-}
-
-.badge-di-high {
-    background-color: #e8a33d;
-}
-
-.badge-di-very-high {
-    background-color: #e15b5b;
-}
-
-.btn-external {
-    display: inline-block;
+.detail-button {
     flex-shrink: 0;
-    padding: 0.4rem 0.9rem;
-    border: 1px solid #cfd4de;
-    border-radius: 6px;
-    background-color: #f4f6fb;
-    color: #1f2430;
     font-weight: 600;
-    font-size: 0.85rem;
-    text-decoration: none;
-    cursor: pointer;
-    transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
-.btn-external:hover {
-    background-color: #e2e5eb;
-}
-
-.btn-external:active {
-    transform: scale(0.97);
+@media (max-width: 480px) {
+  .detail-button { display: none; }
+  .city-card { padding: 13px; }
 }
 </style>

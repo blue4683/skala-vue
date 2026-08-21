@@ -1,0 +1,24 @@
+{
+  "lat": -77.85,
+  "lon": 166.67,
+  "timezone": "Antarctica/McMurdo",
+  "timezone_offset": 46800,
+  "data": [
+    {
+      "dt": 1800014400,
+      "temp": -3.5,
+      "feels_like": -8.2,
+      "pressure": 998,
+      "humidity": 55,
+      "dew_point": -11.0,
+      "clouds": 15,
+      "uvi": 3.2,
+      "visibility": 10000,
+      "wind_speed": 4.5,
+      "wind_deg": 200,
+      "weather": [
+        { "id": 800, "main": "Clear", "description": "clear sky", "icon": "01d" }
+      ]
+    }
+  ]
+}

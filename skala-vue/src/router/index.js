@@ -6,6 +6,11 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
+      component: () => import('../views/CoastalMapView.vue'),
+    },
+    {
+      path: '/dashboard',
+      name: 'dashboard',
       component: () => import('../views/WeatherHomeView.vue'),
     },
     {
@@ -17,6 +22,11 @@ const router = createRouter({
       path: '/weather/:cityId',
       name: 'weather-detail',
       component: () => import('../views/WeatherDetailView.vue'),
+    },
+    {
+      path: '/scene',
+      name: 'weather-scene',
+      component: () => import('../views/WeatherView.vue'),
     },
     {
       path: '/:pathMatch(.*)*',

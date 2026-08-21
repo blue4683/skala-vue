@@ -1,38 +1,17 @@
 <script setup>
-defineProps({
-    cityName: {
-        type: String,
-        required: true,
-    },
-})
+import { Search } from '@element-plus/icons-vue'
 
+defineProps({ cityName: { type: String, required: true } })
 const emit = defineEmits(['update-query'])
 </script>
 
 <template>
-    <input
-        type="text"
-        :value="cityName"
-        @change="emit('update-query', $event.target.value)"
-        placeholder="검색할 도시 이름 입력"
-    >
-    <p class="city-search-result">검색 중인 도시: {{ cityName }}</p>
+  <el-input :model-value="cityName" placeholder="검색할 도시 이름 입력" size="large" clearable @update:model-value="emit('update-query', $event)">
+    <template #prefix><el-icon><Search /></el-icon></template>
+  </el-input>
+  <p class="city-search-result"><template v-if="cityName">‘{{ cityName }}’ 관련 도시를 찾고 있어요.</template><template v-else>원하는 도시를 검색해 보세요.</template></p>
 </template>
 
 <style scoped>
-input[type='text'] {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 0.5rem 0.75rem;
-    border: 1px solid #cfd4de;
-    border-radius: 6px;
-    background-color: #fff;
-    font-size: 0.95rem;
-}
-
-.city-search-result {
-    margin: 0.6rem 0 0;
-    color: #4a5062;
-    font-size: 0.9rem;
-}
+.city-search-result { margin-top: 0.65rem; color: var(--color-muted); font-size: 0.83rem; }
 </style>

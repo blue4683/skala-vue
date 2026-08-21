@@ -1,6 +1,8 @@
 <script setup>
 import { computed, watch, watchEffect, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
+import { Location, Sunny, Warning } from '@element-plus/icons-vue'
 import BaseDashboardCard from '../components/exercise/BaseDashboardCard.vue'
 import SearchBar from '../components/exercise/SearchBar.vue'
 import WeatherCard from '../components/exercise/WeatherCard.vue'
@@ -29,6 +31,7 @@ function getDiscomfortLevel(index) {
 
 function selectCity(city) {
     selectedCity.value = city
+    ElMessage({ message: `${city.name}의 날씨를 선택했어요.`, type: 'success', grouping: true })
 }
 
 const statusMessage = computed(() => {
@@ -71,60 +74,75 @@ watchEffect(() => {
 </script>
 
 <template>
-    <div class="weather-mockup">
-        <header class="mockup-header">
-            <h2>☁️ 날씨 대시보드</h2>
-        </header>
+  <div class="weather-dashboard">
+    <section class="dashboard-hero">
+      <div>
+        <p class="eyebrow"><el-icon><Location /></el-icon> 대한민국 주요 도시</p>
+        <h1>오늘의 날씨,<br><em>가볍게 확인하세요.</em></h1>
+        <p class="hero-copy">기온과 습도, 불쾌지수를 한 화면에서 비교해 보세요.</p>
+      </div>
+      <div class="hero-weather" aria-hidden="true"><el-icon><Sunny /></el-icon><span>28°</span></div>
+    </section>
 
-        <BaseDashboardCard title="🔍 도시 검색">
-            <SearchBar :city-name="cityName" @update-query="cityName = $event" />
-        </BaseDashboardCard>
+    <section class="dashboard-grid">
+      <BaseDashboardCard title="도시 검색" class="search-panel">
+        <SearchBar :city-name="cityName" @update-query="cityName = $event" />
+      </BaseDashboardCard>
 
-        <BaseDashboardCard title="🌤️ 지역별 날씨 현황">
-            <WeatherCard
-                v-for="city in filteredWeatherList"
-                :key="city.id"
-                :city="city"
-                @select-card="selectCity"
-                @click-detail="showDetail"
-            />
-        </BaseDashboardCard>
+      <BaseDashboardCard title="지역별 날씨 현황" class="weather-panel">
+        <p class="result-count"><b>{{ filteredWeatherList.length }}</b>개 도시의 날씨 정보</p>
+        <WeatherCard
+          v-for="city in filteredWeatherList"
+          :key="city.id"
+          :city="city"
+          @select-card="selectCity"
+          @click-detail="showDetail"
+        />
+        <el-empty v-if="!filteredWeatherList.length" description="일치하는 도시가 없습니다." :image-size="70" />
+      </BaseDashboardCard>
+    </section>
 
-        <div class="status-banner">
-            {{ statusMessage }}
-        </div>
+    <el-alert class="status-banner" :title="statusMessage" type="info" :closable="false" show-icon>
+      <template #icon><el-icon><Warning /></el-icon></template>
+    </el-alert>
     </div>
 </template>
 
 <style scoped>
-.weather-mockup {
-    max-width: 560px;
-    margin: 0 auto;
-    border: 1px solid #e2e5eb;
-    border-radius: 12px;
-    overflow: hidden;
-    background-color: #fff;
+.weather-dashboard { max-width: 1000px; margin: 0 auto; }
+
+.dashboard-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 225px;
+  padding: 37px 46px;
+  border-radius: 24px;
+  color: #fff;
+  overflow: hidden;
+  background: radial-gradient(circle at 87% 17%, rgba(255, 222, 117, 0.96) 0 8%, transparent 8.5%), linear-gradient(118deg, #195b9b 0%, #2d83cb 53%, #72b9e6 100%);
+  box-shadow: 0 18px 36px rgba(28, 100, 165, 0.19);
 }
 
-.mockup-header {
-    padding: 1.25rem 1.5rem;
-    border-bottom: 1px solid #e2e5eb;
-}
+.eyebrow { display: flex; align-items: center; gap: 6px; color: #d6ecff; font-size: 0.86rem; font-weight: 700; }
+.dashboard-hero h1 { margin-top: 12px; color: #fff; font-size: clamp(2rem, 4vw, 2.85rem); font-weight: 800; line-height: 1.18; letter-spacing: -0.065em; }
+.dashboard-hero h1 em { color: #ffebac; font-style: normal; }
+.hero-copy { margin-top: 13px; color: #d7ecff; font-size: 0.94rem; }
 
-.mockup-header h2 {
-    margin: 0;
-    font-size: 1.15rem;
-    font-weight: 700;
-    color: #1f2430;
-}
+.hero-weather { display: flex; align-items: center; gap: 9px; padding-right: 8%; color: #fff8d9; font-size: 4.6rem; filter: drop-shadow(0 8px 13px rgba(32, 90, 133, 0.28)); }
+.hero-weather :deep(.el-icon) { font-size: inherit; }
+.hero-weather span { color: #fff; font-size: 2.6rem; font-weight: 700; letter-spacing: -0.07em; }
 
-.status-banner {
-    margin: 1rem 1.5rem 1.5rem;
-    padding: 0.75rem 1rem;
-    background-color: #e5f5ea;
-    color: #2f8a4b;
-    font-weight: 700;
-    text-align: center;
-    border-radius: 8px;
+.dashboard-grid { display: grid; grid-template-columns: minmax(250px, 0.75fr) minmax(0, 1.55fr); gap: 20px; margin-top: 22px; align-items: start; }
+.result-count { margin-bottom: 12px; color: var(--color-muted); font-size: 0.82rem; }
+.result-count b { color: #236fae; font-weight: 800; }
+
+.status-banner { margin-top: 20px; border-radius: 14px; }
+
+@media (max-width: 720px) {
+  .dashboard-hero { min-height: 205px; padding: 30px; }
+  .hero-weather { padding-right: 0; font-size: 3.6rem; }
+  .hero-weather span { display: none; }
+  .dashboard-grid { grid-template-columns: 1fr; }
 }
 </style>

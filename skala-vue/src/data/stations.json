@@ -1,0 +1,17 @@
+{
+  "_note": "obsCode·lat/lon은 data.go.kr 조석예보(고, 저조) API 실호출로 검증됨(2026-08-21).",
+  "stations": [
+    {
+      "obsCode": "DT_0001",
+      "name": "인천",
+      "lat": 37.45194,
+      "lon": 126.59222
+    },
+    {
+      "obsCode": "DT_0005",
+      "name": "부산",
+      "lat": 35.09638,
+      "lon": 129.03527
+    }
+  ]
+}

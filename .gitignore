@@ -1,0 +1,9 @@
+# Claude Code 작업용 문서 — GitHub에 올리지 않는다 (지침/설계 노트/가이드)
+/AGENTS.md
+/CLAUDE.md
+/coastal-map-design.md
+/tide-feature-design.md
+/vue-rebuild-guide.md
+/guide/
+/skala-vue/src/assets/script.md
+/skala-vue/src/assets/weather-scene-implementation-guide.md

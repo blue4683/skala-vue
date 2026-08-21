@@ -1,0 +1,26 @@
+{
+  "lat": 37.5665,
+  "lon": 126.978,
+  "timezone": "Asia/Seoul",
+  "timezone_offset": 32400,
+  "data": [
+    {
+      "dt": 1787266800,
+      "sunrise": 1787258100,
+      "sunset": 1787307000,
+      "temp": 18.9,
+      "feels_like": 18.7,
+      "pressure": 1015,
+      "humidity": 96,
+      "dew_point": 18.3,
+      "clouds": 40,
+      "uvi": 0.8,
+      "visibility": 800,
+      "wind_speed": 0.8,
+      "wind_deg": 0,
+      "weather": [
+        { "id": 741, "main": "Fog", "description": "fog", "icon": "50d" }
+      ]
+    }
+  ]
+}
