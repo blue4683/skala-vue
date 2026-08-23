@@ -128,8 +128,19 @@ loadTideMock(TIDE_MOCKS[selectedStation.value.obsCode])
       </form>
     </el-card>
 
-    <el-alert v-if="error" class="error-box" :title="error" type="error" show-icon :closable="false">
-      <template #default><el-button size="small" type="danger" plain @click="fetchLive">다시 시도</el-button></template>
+    <el-alert
+      v-if="error"
+      class="error-box"
+      :title="error"
+      type="error"
+      show-icon
+      :closable="false"
+    >
+      <template #default
+        ><el-button size="small" type="danger" plain @click="fetchLive"
+          >다시 시도</el-button
+        ></template
+      >
     </el-alert>
 
     <div class="stage-wrap">
@@ -167,5 +178,4 @@ loadTideMock(TIDE_MOCKS[selectedStation.value.obsCode])
   </div>
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>

@@ -13,16 +13,21 @@ const props = defineProps({
 
 // visibility가 낮을수록(blurPx 큼) 하늘 전체를 흐리게. backdrop-filter는 SVG
 // 내부 도형에 안정적으로 적용되지 않아, svg 루트에 filter: blur()를 건다.
-const skyFilter = computed(() => (props.params.blurPx > 0 ? `blur(${props.params.blurPx}px)` : 'none'))
+const skyFilter = computed(() =>
+  props.params.blurPx > 0 ? `blur(${props.params.blurPx}px)` : 'none',
+)
 
 // 색만으로 정보를 전달하지 않도록 장면 전체를 한 문장으로 대체 텍스트화한다.
 const sceneDescription = computed(() => {
   const p = props.params
   const sky =
-    p.cloudDensity < 0.2 ? '맑은'
-    : p.cloudDensity < 0.5 ? '구름 조금 있는'
-    : p.cloudDensity < 0.8 ? '구름 많은'
-    : '흐린'
+    p.cloudDensity < 0.2
+      ? '맑은'
+      : p.cloudDensity < 0.5
+        ? '구름 조금 있는'
+        : p.cloudDensity < 0.8
+          ? '구름 많은'
+          : '흐린'
 
   let wind = '바람 거의 없음'
   if (p.driftSpeed >= 0.15) {

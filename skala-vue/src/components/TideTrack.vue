@@ -52,7 +52,10 @@ const markers = computed(() =>
       ...p,
       x: xAt(p.time),
       y: yAt(p.level),
-      timeLabel: new Date(p.time).toLocaleTimeString('ko-KR', { hour: 'numeric', minute: '2-digit' }),
+      timeLabel: new Date(p.time).toLocaleTimeString('ko-KR', {
+        hour: 'numeric',
+        minute: '2-digit',
+      }),
     })),
 )
 
@@ -111,7 +114,9 @@ function step(minutes) {
     <div class="chart-header">
       <div>
         <p class="eyebrow">TIDE LEVEL</p>
-        <p class="caption">조위 <b>{{ cursorLevel !== null ? `${Math.round(cursorLevel)}cm` : '—' }}</b></p>
+        <p class="caption">
+          조위 <b>{{ cursorLevel !== null ? `${Math.round(cursorLevel)}cm` : '—' }}</b>
+        </p>
       </div>
       <span class="hint">{{ cursorTimeLabel }} 기준</span>
     </div>
@@ -126,7 +131,9 @@ function step(minutes) {
       :aria-valuemin="rangeStart"
       :aria-valuemax="rangeEnd"
       :aria-valuenow="Math.round(targetMs)"
-      :aria-valuetext="cursorLevel !== null ? `${cursorTimeLabel} 조위 ${Math.round(cursorLevel)}cm` : ''"
+      :aria-valuetext="
+        cursorLevel !== null ? `${cursorTimeLabel} 조위 ${Math.round(cursorLevel)}cm` : ''
+      "
       @pointerdown="onPointerDown"
       @pointermove="onPointerMove"
       @pointerup="onPointerUp"
@@ -142,7 +149,15 @@ function step(minutes) {
       </defs>
 
       <rect x="0" y="0" :width="CHART_W" :height="CHART_H" rx="12" class="chart-bg" />
-      <line v-for="y in [40, 100, 160]" :key="y" x1="0" :y1="y" :x2="CHART_W" :y2="y" class="guide-line" />
+      <line
+        v-for="y in [40, 100, 160]"
+        :key="y"
+        x1="0"
+        :y1="y"
+        :x2="CHART_W"
+        :y2="y"
+        class="guide-line"
+      />
 
       <!-- 조건 밴드 (물흐름 강한 구간) -->
       <rect
@@ -157,8 +172,22 @@ function step(minutes) {
 
       <path :d="areaD" class="area" />
       <path :d="pathD" class="curve" fill="none" />
-      <circle v-for="m in markers" :key="m.time" :cx="m.x" :cy="m.y" r="5" :class="['marker', m.type]" />
-      <line v-if="cursorY !== null" :x1="cursorX" :x2="cursorX" y1="0" :y2="CHART_H" class="cursor-line" />
+      <circle
+        v-for="m in markers"
+        :key="m.time"
+        :cx="m.x"
+        :cy="m.y"
+        r="5"
+        :class="['marker', m.type]"
+      />
+      <line
+        v-if="cursorY !== null"
+        :x1="cursorX"
+        :x2="cursorX"
+        y1="0"
+        :y2="CHART_H"
+        class="cursor-line"
+      />
     </svg>
   </div>
 </template>

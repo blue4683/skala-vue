@@ -13,8 +13,12 @@ export function useScrubTime() {
   }, 60_000)
   onUnmounted(() => clearInterval(timer))
 
-  const scrubTo = (ms) => { scrubMs.value = ms }
-  const reset = () => { scrubMs.value = null }
+  const scrubTo = (ms) => {
+    scrubMs.value = ms
+  }
+  const reset = () => {
+    scrubMs.value = null
+  }
 
   return { nowMs, targetMs, isScrubbing, scrubTo, reset }
 }

@@ -49,9 +49,21 @@ function gustStyle() {
 
 <template>
   <g v-for="layer in layers" :key="layer.id" class="cloud-track" :style="driftStyle(layer)">
-    <g v-for="offset in OFFSETS" :key="offset" :transform="`translate(${offset}, ${layer.y}) scale(${layer.scale})`">
+    <g
+      v-for="offset in OFFSETS"
+      :key="offset"
+      :transform="`translate(${offset}, ${layer.y}) scale(${layer.scale})`"
+    >
       <g class="cloud-gust" :style="gustStyle()">
-        <ellipse v-for="(p, pi) in PUFFS" :key="pi" :cx="p.x" cy="0" :rx="p.r" :ry="p.r * 0.62" fill="#fff" />
+        <ellipse
+          v-for="(p, pi) in PUFFS"
+          :key="pi"
+          :cx="p.x"
+          cy="0"
+          :rx="p.r"
+          :ry="p.r * 0.62"
+          fill="#fff"
+        />
       </g>
     </g>
   </g>
@@ -70,16 +82,24 @@ function gustStyle() {
 }
 
 @keyframes cloud-drift {
-  from { transform: translateX(-1000px); }
-  to { transform: translateX(0); }
+  from {
+    transform: translateX(-1000px);
+  }
+  to {
+    transform: translateX(0);
+  }
 }
 
 @keyframes gust {
-  50% { transform: translateY(calc(var(--amp) * 6px)); }
+  50% {
+    transform: translateY(calc(var(--amp) * 6px));
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .cloud-track,
-  .cloud-gust { animation: none; }
+  .cloud-gust {
+    animation: none;
+  }
 }
 </style>

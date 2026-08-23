@@ -53,7 +53,9 @@ export async function fetchTidePreTab(obsCode, dateStr) {
   } catch (e) {
     if (axios.isAxiosError(e)) {
       const status = e.response?.status
-      throw new Error(`조석 정보를 불러오지 못했습니다${status ? ` (${status})` : ''}`, { cause: e })
+      throw new Error(`조석 정보를 불러오지 못했습니다${status ? ` (${status})` : ''}`, {
+        cause: e,
+      })
     }
     throw e // normalizeTideResponse가 던진, resultMsg가 담긴 에러는 그대로 전달
   }

@@ -75,7 +75,16 @@ export function useTide() {
   }
 
   return {
-    extrema, series, tidalRange, loading, error,
-    load, loadMock, levelAt, normalizedLevelAt, rangeStart, rangeEnd,
+    extrema,
+    series,
+    tidalRange,
+    loading,
+    error,
+    load,
+    loadMock,
+    levelAt,
+    normalizedLevelAt,
+    rangeStart,
+    rangeEnd,
   }
 }

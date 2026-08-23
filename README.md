@@ -174,3 +174,16 @@ components/*.vue        API 필드명(`main.temp`, `sys.sunset`)을 몰라도 �
 - `views/CoastalMapView.vue` -> 뷰가 40줄이 안 됨. 계산은 전부 composable/utils에 있고 뷰는 조립·표시만 함(Stage 3부터 지켜온 층 분리) -> `/map` 라우트로 등록하고 헤더에 "해안 지도" 링크 추가
 
 - `d3-geo`만 설치(`d3` 전체가 아님) -> d3는 30개 넘는 모듈 묶음인데 투영 기능만 필요해서 번들 크기를 줄임
+
+## ESLint · Prettier · oxlint
+
+- 세 도구의 역할이 다름: Prettier는 **포맷팅**(모양), ESLint는 **정적 분석**(의미, 안 쓰는 변수·`v-for` key 누락 등), oxlint는 ESLint와 같은 검사를 Rust로 훨씬 빠르게. `eslint-config-prettier`로 ESLint의 포맷팅 규칙을 꺼서 둘이 서로 되돌리는 무한루프를 막음
+    - `npm create vue@latest`가 이미 `eslint.config.js`/`.oxlintrc.json`/`.prettierrc.json`/`jsconfig.json`을 가이드와 동일하게 생성해둔 상태라 이 단계는 설정을 새로 만들기보다 **실제로 작동하는지 검증**하는 데 집중함
+
+- `npm run lint` 실행 중 oxlint에서 148개, ESLint에서 43개 에러가 쏟아졌는데 전부 우리 코드가 아니라 프로젝트 루트의 `.vite/`(Vite dev 서버 캐시) 안에 있는 vue/pinia/vue-router 번들 코드였음 -> 원인은 `.vite/`가 `.gitignore`에 없어서 **git에 실수로 커밋**돼 있었고, 캐시 디렉터리라 린터의 기본 제외 대상도 아니었던 것
+    - `.gitignore`에 `.vite` 추가 + `git rm -r --cached`로 추적 해제 + 로컬 캐시 삭제(재생성 가능) + `eslint.config.js`의 `globalIgnores`에도 `**/.vite/**` 추가(재생성돼도 다시 걸리지 않도록 이중 방어)
+    - 이후 `npm run lint`는 0 에러로 통과
+
+- 일부러 `unused` 변수와 `v-for` key 누락 코드를 만들어 `npx eslint`로 실제로 잡히는지 확인(`no-unused-vars`, `vue/require-v-for-key`) -> 확인 후 파일은 삭제
+
+- `npm run format` 실행 결과는 로직 변경 없이 줄바꿈/들여쓰기 같은 포맷팅만 반영됨(가이드 코드 스니펫을 그대로 옮기며 Prettier를 거치지 않았던 파일들이 정리됨)

@@ -29,33 +29,52 @@ onMounted(load)
   <div class="coastal-view">
     <section class="view-intro">
       <div>
-        <p class="eyebrow"><el-icon><Location /></el-icon> COASTAL ACTIVITY MAP</p>
+        <p class="eyebrow">
+          <el-icon><Location /></el-icon> COASTAL ACTIVITY MAP
+        </p>
         <h1>지금, 어디서<br /><em>낚시하기 좋을까</em></h1>
-        <p class="intro-copy">한반도 해안을 따라 풍속·파고·강수확률을 규칙으로 판정해 색으로 보여줍니다.</p>
+        <p class="intro-copy">
+          한반도 해안을 따라 풍속·파고·강수확률을 규칙으로 판정해 색으로 보여줍니다.
+        </p>
       </div>
     </section>
 
-    <el-alert v-if="error" class="error-box" :title="error" type="error" show-icon :closable="false">
+    <el-alert
+      v-if="error"
+      class="error-box"
+      :title="error"
+      type="error"
+      show-icon
+      :closable="false"
+    >
       <template #default>
         <el-button size="small" type="danger" plain @click="load">다시 시도</el-button>
       </template>
     </el-alert>
 
     <div class="stage-wrap">
-      <KoreaMap v-if="segments.length" :segments="segments" :states="statesAtSelected" @hover="hovered = $event" />
+      <KoreaMap
+        v-if="segments.length"
+        :segments="segments"
+        :states="statesAtSelected"
+        @hover="hovered = $event"
+      />
       <div v-if="loading" class="skeleton" aria-hidden="true" />
     </div>
 
     <p class="hover-hint">
-      {{ hovered
-        ? `${hovered.name} — ${hovered.level}${hovered.reason.length ? ` (${hovered.reason.join(', ')})` : ''}`
-        : '구간에 마우스를 올리면 상세 사유가 보여요.' }}
+      {{
+        hovered
+          ? `${hovered.name} — ${hovered.level}${hovered.reason.length ? ` (${hovered.reason.join(', ')})` : ''}`
+          : '구간에 마우스를 올리면 상세 사유가 보여요.'
+      }}
     </p>
 
     <TimeSlider v-if="timeSlots.length" v-model="selectedIndex" :time-slots="timeSlots" />
 
     <p class="summary">
-      활동 가능 {{ summary.open }} · 일부 미충족 {{ summary.caution }} · 데이터 없음 {{ summary.nodata }}
+      활동 가능 {{ summary.open }} · 일부 미충족 {{ summary.caution }} · 데이터 없음
+      {{ summary.nodata }}
     </p>
   </div>
 </template>
@@ -71,9 +90,15 @@ onMounted(load)
 }
 
 @keyframes shimmer {
-  0% { background-position: 100% 50%; }
-  100% { background-position: 0 50%; }
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
 }
 
-.stage-wrap { position: relative; }
+.stage-wrap {
+  position: relative;
+}
 </style>

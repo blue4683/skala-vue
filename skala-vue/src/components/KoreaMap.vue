@@ -83,8 +83,16 @@ const points = computed(() => {
         @mouseenter="emit('hover', p)"
         @mouseleave="emit('hover', null)"
       >
-        <circle :cx="p.x" :cy="p.y" r="7" :fill="STATE_COLOR[p.level]" :stroke="STATE_COLOR[p.level]" />
-        <title>{{ p.name }} — {{ p.level }}{{ p.reason.length ? `(${p.reason.join(', ')})` : '' }}</title>
+        <circle
+          :cx="p.x"
+          :cy="p.y"
+          r="7"
+          :fill="STATE_COLOR[p.level]"
+          :stroke="STATE_COLOR[p.level]"
+        />
+        <title>
+          {{ p.name }} — {{ p.level }}{{ p.reason.length ? `(${p.reason.join(', ')})` : '' }}
+        </title>
       </g>
     </svg>
 
@@ -97,11 +105,35 @@ const points = computed(() => {
 </template>
 
 <style scoped>
-.province { fill: #eef4fa; stroke: #cbd8e6; stroke-width: 1; }
-.segment circle { stroke-width: 2; cursor: pointer; }
+.province {
+  fill: #eef4fa;
+  stroke: #cbd8e6;
+  stroke-width: 1;
+}
+.segment circle {
+  stroke-width: 2;
+  cursor: pointer;
+}
 /* nodata는 색뿐 아니라 점선 테두리로도 구분한다 */
-.segment.is-nodata circle { fill: #e2e8f0; stroke-dasharray: 3 2; }
-.legend { list-style: none; display: flex; gap: 1rem; padding: 0; }
-.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 4px; }
-.legend i.nodata { background: #e2e8f0; border: 1px dashed #94a3b8; }
+.segment.is-nodata circle {
+  fill: #e2e8f0;
+  stroke-dasharray: 3 2;
+}
+.legend {
+  list-style: none;
+  display: flex;
+  gap: 1rem;
+  padding: 0;
+}
+.legend i {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 4px;
+}
+.legend i.nodata {
+  background: #e2e8f0;
+  border: 1px dashed #94a3b8;
+}
 </style>

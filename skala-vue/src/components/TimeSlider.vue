@@ -54,6 +54,14 @@ function tickLabel(ms) {
 </template>
 
 <style scoped>
-.track { width: 100%; accent-color: #0d9488; }
-.ticks { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--color-text-mute, #64748b); }
+.track {
+  width: 100%;
+  accent-color: #0d9488;
+}
+.ticks {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: var(--color-text-mute, #64748b);
+}
 </style>

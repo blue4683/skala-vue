@@ -18,6 +18,12 @@ const seaY = computed(() => BOTTOM_Y - props.level * (BOTTOM_Y - HORIZON_Y))
 </template>
 
 <style scoped>
-.horizon { stroke: rgba(255, 255, 255, 0.35); stroke-width: 1; }
-.sea { fill: #1b4965; opacity: 0.55; }
+.horizon {
+  stroke: rgba(255, 255, 255, 0.35);
+  stroke-width: 1;
+}
+.sea {
+  fill: #1b4965;
+  opacity: 0.55;
+}
 </style>
