@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const BASE = '<https://api.openweathermap.ord/data/2.5/weather>'
+const BASE = 'https://api.openweathermap.org/data/2.5/weather'
 
 export async function fetchOneCall(lat, lon) {
   try {
@@ -16,11 +16,6 @@ export async function fetchOneCall(lat, lon) {
     return res.data
   } catch (e) {
     const status = e.response?.status
-    throw (
-      new Error(`날씨 정보를 불러오지 못했습니다${status ? ` (${status})` : ''}`),
-      {
-        cause: e,
-      }
-    )
+    throw new Error(`날씨 정보를 불러오지 못했습니다${status ? ` (${status})` : ''}`, { cause: e })
   }
 }
