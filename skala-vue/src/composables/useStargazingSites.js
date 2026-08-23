@@ -1,25 +1,84 @@
-import { ref } from 'vue'
-import stargazingSitesData from '@/data/stargazingSites.json'
+import { computed, ref } from 'vue'
+import stargazingCitiesData from '@/data/globalStargazingCities.json'
 import { useAstronomy } from '@/composables/useAstronomy'
 import { evaluateSiteAt } from '@/composables/useObservationScore'
+import { fetchStargazingWeather, weatherAt } from '@/api/stargazingWeather'
+import { fetchLightPollution } from '@/api/lightPollution'
 import { findBestWindow } from '@/utils/observationScore'
 
 const HOUR_MS = 3_600_000
-// 대한민국 대략 중심(충북 인근). "오늘 밤" 시간 리본의 항해박명 경계를 구하는 데만 쓰며,
-// 실제 각 후보지의 태양 고도는 evaluateSiteAt에서 그 장소 좌표로 다시 계산한다.
-const KOREA_CENTER = { latitude: 36.5, longitude: 127.8 }
 
 export function useStargazingSites() {
   const { makeObserver, nightWindow } = useAstronomy()
-  const sites = ref(stargazingSitesData.sites)
+  const forecasts = ref({})
+  const lightPollution = ref({})
+  const loading = ref(false)
+  const error = ref(null)
+  const updatedAt = ref(null)
+
+  const sites = computed(() =>
+    stargazingCitiesData.cities.map((city) => {
+      const light = lightPollution.value[city.id]
+      return {
+        ...city,
+        name: city.nameKo,
+        region: `${city.region}, ${city.countryCode}`,
+        darknessScore: light?.darknessScore ?? null,
+        bortleEstimate: null,
+        accessNote: `인근 관측 지역: ${city.nearbyObservationArea}`,
+        verifiedAt: light?.observedAt?.slice(0, 10) ?? '조회 중',
+        lightPollution: light ?? null,
+      }
+    }),
+  )
+
+  async function loadLiveData() {
+    loading.value = true
+    error.value = null
+
+    const [weatherResult, lightResults] = await Promise.all([
+      fetchStargazingWeather(stargazingCitiesData.cities).then(
+        (value) => ({ status: 'fulfilled', value }),
+        (reason) => ({ status: 'rejected', reason }),
+      ),
+      Promise.allSettled(stargazingCitiesData.cities.map((city) => fetchLightPollution(city))),
+    ])
+
+    if (weatherResult.status === 'fulfilled') forecasts.value = weatherResult.value
+
+    const nextLight = {}
+    lightResults.forEach((result, index) => {
+      if (result.status === 'fulfilled') {
+        nextLight[stargazingCitiesData.cities[index].id] = result.value
+      }
+    })
+    lightPollution.value = nextLight
+
+    const failures = [
+      weatherResult.status === 'rejected' ? '날씨' : null,
+      lightResults.some((result) => result.status === 'rejected') ? '광공해 일부' : null,
+    ].filter(Boolean)
+    error.value = failures.length ? `${failures.join('·')} 데이터를 불러오지 못했습니다.` : null
+    updatedAt.value = new Date()
+    loading.value = false
+  }
+
+  function weatherFor(site, date) {
+    return site ? weatherAt(forecasts.value[site.id], date) : null
+  }
+
+  function evaluateAt(site, date) {
+    return evaluateSiteAt(site, date, weatherFor(site, date))
+  }
 
   /**
    * "오늘 밤"(항해박명 시작~종료)을 1시간 간격으로 나눈 시각 목록.
    * @param {Date} [now]
    * @returns {Date[]}
    */
-  function buildTonightSlots(now = new Date()) {
-    const observer = makeObserver(KOREA_CENTER.latitude, KOREA_CENTER.longitude)
+  function buildTonightSlots(site, now = new Date()) {
+    if (!site) return []
+    const observer = makeObserver(site.latitude, site.longitude, site.elevationM ?? 0)
     const window = nightWindow(now, observer)
     if (!window) return []
 
@@ -36,7 +95,7 @@ export function useStargazingSites() {
    */
   function scoresAt(date) {
     return sites.value.map((site) => {
-      const result = evaluateSiteAt(site, date)
+      const result = evaluateAt(site, date)
       return {
         id: site.id,
         latitude: site.latitude,
@@ -53,18 +112,25 @@ export function useStargazingSites() {
    * 오늘 밤 전체 후보지 중 가장 좋은 관측 시간대를 찾아 그 시작 시각을 반환한다.
    * 후보지가 하나도 80점 이상 구간을 갖지 못하면 오늘 밤 첫 시각으로 대체한다.
    */
-  function defaultBestTime(now = new Date()) {
-    const slots = buildTonightSlots(now)
+  function defaultBestTime(site, now = new Date()) {
+    const slots = buildTonightSlots(site, now)
     if (!slots.length) return now
 
-    let best = null
-    for (const site of sites.value) {
-      const hourly = slots.map((t) => ({ time: t.getTime(), score: evaluateSiteAt(site, t).score }))
-      const window = findBestWindow(hourly)
-      if (window && (!best || window.averageScore > best.averageScore)) best = window
-    }
+    const hourly = slots.map((t) => ({ time: t.getTime(), score: evaluateAt(site, t).score }))
+    const best = findBestWindow(hourly)
     return best ? new Date(best.start) : slots[0]
   }
 
-  return { sites, buildTonightSlots, scoresAt, defaultBestTime }
+  return {
+    sites,
+    loading,
+    error,
+    updatedAt,
+    loadLiveData,
+    weatherFor,
+    evaluateAt,
+    buildTonightSlots,
+    scoresAt,
+    defaultBestTime,
+  }
 }

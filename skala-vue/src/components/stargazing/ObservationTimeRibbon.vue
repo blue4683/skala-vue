@@ -3,11 +3,16 @@ const props = defineProps({
   timeSlots: { type: Array, required: true }, // Date[]
   modelValue: { type: Date, required: true },
   hourlyScores: { type: Array, default: () => [] }, // [{time, score}] for the selected site, optional
+  timezone: { type: String, default: undefined },
 })
 const emit = defineEmits(['update:modelValue'])
 
 function label(date) {
-  return date.toLocaleTimeString('ko-KR', { hour: 'numeric', hour12: false })
+  return date.toLocaleTimeString('ko-KR', {
+    hour: 'numeric',
+    hour12: false,
+    timeZone: props.timezone,
+  })
 }
 
 function isSelected(date) {

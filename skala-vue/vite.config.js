@@ -6,13 +6,10 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [
-    vue(),
-    vueDevTools(),
-  ],
+  plugins: [vue(), vueDevTools()],
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
   // maplibre-gl은 내부적으로 Worker(new URL(...))로 자체 워커 스크립트를 참조하는데,
@@ -35,6 +32,12 @@ export default defineConfig({
         target: 'https://apis.data.go.kr',
         changeOrigin: true,
         rewrite: (p) => p.replace(/^\/kma/, '/1360000'),
+      },
+      '/viirs': {
+        target: 'https://di-lawimagery1.img.arcgis.com',
+        changeOrigin: true,
+        rewrite: (p) =>
+          p.replace(/^\/viirs/, '/arcgis/rest/services/NighttimeLightsMDNB/ImageServer'),
       },
     },
   },

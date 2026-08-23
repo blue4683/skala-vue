@@ -9,6 +9,10 @@
       "destination": "https://apis.data.go.kr/1360000/:path*"
     },
     {
+      "source": "/viirs/:path*",
+      "destination": "https://di-lawimagery1.img.arcgis.com/arcgis/rest/services/NighttimeLightsMDNB/ImageServer/:path*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

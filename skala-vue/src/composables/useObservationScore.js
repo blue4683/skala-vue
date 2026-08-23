@@ -1,6 +1,5 @@
 import { computed, unref } from 'vue'
 import { useAstronomy } from '@/composables/useAstronomy'
-import { mockWeatherAt } from '@/mocks/stargazing/weather'
 import constellationsData from '@/data/constellations.json'
 import {
   checkHardGate,
@@ -13,21 +12,28 @@ import {
 } from '@/utils/observationScore'
 import { evaluateConstellations } from '@/utils/constellationVisibility'
 
-const HOUR_MS = 3_600_000
 const { makeObserver, sunAltitude, moonInfo, starAltAz } = useAstronomy()
 
 /**
  * 한 장소·한 시각의 관측 조건을 계산한다(순수 계산, Vue와 무관).
- * @param {import('@/data/stargazingSites.json').sites[number]} site
+ * @param {object} site
  * @param {Date} date
+ * @param {object|null} weather
  */
-export function evaluateSiteAt(site, date) {
+export function evaluateSiteAt(site, date, weather) {
   const observer = makeObserver(site.latitude, site.longitude, site.elevationM ?? 0)
   const sunAlt = sunAltitude(date, observer)
   const moon = moonInfo(date, observer)
 
-  const timeIndex = Math.round(date.getTime() / HOUR_MS)
-  const weather = mockWeatherAt(site.id, timeIndex)
+  if (!weather || site.darknessScore == null) {
+    return {
+      score: null,
+      status: 'unavailable',
+      reason: '실시간 데이터를 불러오는 중',
+      factors: null,
+      constellations: [],
+    }
+  }
 
   const gate = checkHardGate({
     sunAltitudeDegrees: sunAlt,
@@ -36,7 +42,11 @@ export function evaluateSiteAt(site, date) {
   })
 
   const factors = {
-    darkness: { score: darknessScoreFrom(site.darknessScore), bortleEstimate: site.bortleEstimate },
+    darkness: {
+      score: darknessScoreFrom(site.darknessScore),
+      bortleEstimate: site.bortleEstimate,
+      radianceNanoWatts: site.lightPollution?.radianceNanoWatts ?? null,
+    },
     cloud: {
       score: cloudScoreFrom(weather.cloudPercent, weather.lowCloudPercent),
       totalPercent: weather.cloudPercent,
@@ -89,11 +99,12 @@ export function evaluateSiteAt(site, date) {
  * @param {import('vue').Ref<object>|object} site
  * @param {import('vue').Ref<Date>|Date} time
  */
-export function useObservationScore(site, time) {
+export function useObservationScore(site, time, weather) {
   return computed(() => {
     const s = unref(site)
     const t = unref(time)
+    const w = unref(weather)
     if (!s) return null
-    return { site: s, ...evaluateSiteAt(s, t) }
+    return { site: s, ...evaluateSiteAt(s, t, w) }
   })
 }

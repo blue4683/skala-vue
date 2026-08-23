@@ -11,16 +11,24 @@ defineProps({
 
 const STATUS_LABEL = { recommended: '추천', conditional: '조건부', unavailable: '추천 불가' }
 
-function timeLabel(ms) {
-  return new Date(ms).toLocaleTimeString('ko-KR', { hour: 'numeric', minute: '2-digit' })
+function timeLabel(ms, timezone) {
+  return new Date(ms).toLocaleTimeString('ko-KR', {
+    hour: 'numeric',
+    minute: '2-digit',
+    timeZone: timezone,
+  })
 }
 </script>
 
 <template>
   <aside class="site-detail-panel" aria-label="장소 상세">
     <header>
-      <h3>{{ site.name }}<span class="region">{{ site.region }}</span></h3>
-      <p class="requested-at">기준 시각 {{ requestedAt.toLocaleString('ko-KR') }}</p>
+      <h3>
+        {{ site.name }}<span class="region">{{ site.region }}</span>
+      </h3>
+      <p class="requested-at">
+        기준 시각 {{ requestedAt.toLocaleString('ko-KR', { timeZone: site.timezone }) }}
+      </p>
     </header>
 
     <div class="status-row" :class="`is-${evaluation.status}`">
@@ -30,8 +38,8 @@ function timeLabel(ms) {
     </div>
 
     <p v-if="bestWindow" class="best-window">
-      오늘 밤 추천 시간: {{ timeLabel(bestWindow.start) }} ~ {{ timeLabel(bestWindow.end) }} (평균
-      {{ bestWindow.averageScore }}점)
+      오늘 밤 추천 시간: {{ timeLabel(bestWindow.start, site.timezone) }} ~
+      {{ timeLabel(bestWindow.end, site.timezone) }} (평균 {{ bestWindow.averageScore }}점)
     </p>
 
     <section>
@@ -46,8 +54,8 @@ function timeLabel(ms) {
 
     <footer>
       <p class="confidence-note">
-        어두움 등급은 실측 SQM이 아닌 지형 기반 추정치({{ site.verifiedAt }} 작성), 날씨는 목업
-        데이터입니다.
+        날씨는 Open-Meteo 예보, 어두움은 VIIRS 월간 야간광({{ site.verifiedAt }}) 기반 상대
+        지수입니다. Bortle·SQM 실측값이 아닙니다.
       </p>
       <p v-if="site.accessNote" class="access-note">{{ site.accessNote }}</p>
     </footer>

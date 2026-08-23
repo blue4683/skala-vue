@@ -220,16 +220,17 @@ components/*.vue        API 필드명(`main.temp`, `sys.sunset`)을 몰라도 �
 
 ## 별 관측 지도 (메인 화면으로 교체)
 
-`docs/star-observation-map-design.md` 설계서를 바탕으로 한 새 기능. 설계서 §10의 구현 순서 중 **1단계(화면 골격+목 데이터)와 2단계(점수 함수+천문 계산)**까지만 이번 세션에서 구현했다. 설계서 §12("구현 전 확인이 필요한 항목")가 스스로 밝힌 것처럼 3단계(BFF 연동)와 4단계(라이선스 확보된 광공해 레이어)는 서버 예산·데이터 라이선싱처럼 내가 대신 결정할 수 없는 항목이 걸려 있어 제외했다.
+`docs/star-observation-map-design.md` 설계서를 바탕으로 한 새 기능. 화면 골격·점수 함수·천문 계산에 더해 전세계 17개 관측 거점의 Open-Meteo 예보와 VIIRS 월간 야간광 포인트 조회를 연결했다. 운영용 BFF·캐시와 광공해 래스터 레이어는 아직 포함하지 않는다.
 
 - 홈(`/`)을 별 관측 지도로 교체하고, 기존 날씨 대시보드는 `/dashboard`로 옮김(설계서 원안은 `/stargazing` 경로였지만, "메인 주제로 삼는다"는 요청에 맞춰 홈 자리를 내줌)
 
 - `data/constellations.json` -> 계절별 대표 별자리 23개(§6.1 `ConstellationDefinition` 형태), 각 별의 적경/적위(J2000)·실시등급은 표준 항성 목록값을 옮김
-- `data/stargazingSites.json` -> 국내 대표 다크스카이·산간 지역 10곳. `darknessScore`/`bortleEstimate`는 실측 SQM이 아니라 지형(산간·해안·도심 거리) 기반의 잠정 추정치이고, `verifiedAt`도 현장 실사가 아니라 이 데이터를 정리한 날짜임을 `_note`와 상세 패널 하단에 명시함(§9 "관측 추천은 안전 보증이 아니다" 원칙)
+- `data/globalStargazingCities.json` -> 전세계 관측 거점 17곳의 좌표·고도·IANA 시간대·관측 유형. 좌표는 Open-Meteo와 VIIRS 조회에 공통으로 사용함
 
 - **천문 계산은 `astronomy-engine`으로 실제 계산**(목업 아님) -> `composables/useAstronomy.js`가 `Equator`/`Horizon`으로 태양·달·별의 고도·방위를, `SearchAltitude`로 항해박명(-12°, 태양 고도 하드 게이트와 같은 기준) 시작/종료 시각을 구함
     - `Observer(lat, lon, elev)` + `Horizon(date, observer, raHours, decDegrees)`를 별의 J2000 좌표에 직접 적용 -> 세차운동 효과(연 0.014°)가 고도 20° 임계값 판정에 미치는 영향은 무시 가능한 수준이라 판단해 좌표 보정을 따로 하지 않음
-    - 날씨(구름·강수·시정·바람)만 `mocks/stargazing/weather.js`로 목업(Stage 7의 시드 난수 패턴과 동일한 이유 — 새로고침해도 흔들리지 않아야 함)
+    - `api/stargazingWeather.js`가 Open-Meteo에서 시간별 구름·강수·시정·풍속·기온을 가져오며, 모든 시각은 Unix time으로 정규화해 도시별 시간대와 분리해서 계산함
+    - `api/lightPollution.js`가 Esri VIIRS ImageServer의 최신 월간 원시 복사휘도를 좌표별로 조회함. 위성 상향 복사휘도는 지상 SQM/Bortle과 동일하지 않으므로 로그 스케일의 상대 어두움 지수로만 사용하고 화면에도 원시 단위를 함께 표시함
 
 - `utils/observationScore.js` -> 하드 게이트(§5.1: 태양 고도 ≥ -12°/강수/운량 85%↑)를 먼저 통과해야 점수(§5.2 가중합: 어두움 0.35·구름 0.30·달빛 0.20·시정 0.10·쾌적함 0.05)를 계산. `findBestWindow`는 연속한 80점 이상 구간을 "추천 시간 창"으로 묶음(§5.3)
     - 검증 중 구간이 시간 슬롯 배열의 마지막 칸까지 이어질 때 `end`가 `start`와 같은 값이 되는 버그를 발견 -> 배열 끝에서 닫을 때만 경계를 못 찾는 비대칭이 원인. 회귀 테스트를 추가하고 고침

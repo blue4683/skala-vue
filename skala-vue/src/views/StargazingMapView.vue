@@ -1,28 +1,39 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useStargazingSites } from '@/composables/useStargazingSites'
-import { useObservationScore } from '@/composables/useObservationScore'
 import { findBestWindow } from '@/utils/observationScore'
 import StargazingMap from '@/components/stargazing/StargazingMap.vue'
 import MapLayerToggle from '@/components/stargazing/MapLayerToggle.vue'
 import ObservationTimeRibbon from '@/components/stargazing/ObservationTimeRibbon.vue'
 import SiteDetailPanel from '@/components/stargazing/SiteDetailPanel.vue'
 
-const { sites, buildTonightSlots, scoresAt, defaultBestTime } = useStargazingSites()
+const {
+  sites,
+  loading,
+  error,
+  updatedAt,
+  loadLiveData,
+  evaluateAt,
+  buildTonightSlots,
+  scoresAt,
+  defaultBestTime,
+} = useStargazingSites()
 
-const timeSlots = buildTonightSlots()
 const activeLayer = ref('recommendation')
-const selectedTime = ref(defaultBestTime())
 const selectedSiteId = ref(sites.value[0]?.id ?? null)
+const selectedSite = computed(() => sites.value.find((s) => s.id === selectedSiteId.value) ?? null)
+const selectedTime = ref(defaultBestTime(selectedSite.value))
+const timeSlots = computed(() => buildTonightSlots(selectedSite.value))
 
 const siteScores = computed(() => scoresAt(selectedTime.value))
 
-const selectedSite = computed(() => sites.value.find((s) => s.id === selectedSiteId.value) ?? null)
-const selectedEvaluation = useObservationScore(selectedSite, selectedTime)
+const selectedEvaluation = computed(() =>
+  selectedSite.value ? evaluateAt(selectedSite.value, selectedTime.value) : null,
+)
 
 const hourlyScores = computed(() => {
-  if (!selectedSite.value || !timeSlots.length) return []
-  return timeSlots.map((t) => ({
+  if (!selectedSite.value || !timeSlots.value.length) return []
+  return timeSlots.value.map((t) => ({
     time: t.getTime(),
     score: scoresAt(t).find((s) => s.id === selectedSite.value.id)?.score ?? null,
   }))
@@ -36,6 +47,15 @@ const selectedBestWindow = computed(() => {
 function selectSite(id) {
   selectedSiteId.value = id
 }
+
+watch(selectedSiteId, () => {
+  selectedTime.value = defaultBestTime(selectedSite.value)
+})
+
+onMounted(async () => {
+  await loadLiveData()
+  selectedTime.value = defaultBestTime(selectedSite.value)
+})
 </script>
 
 <template>
@@ -69,6 +89,12 @@ function selectSite(id) {
 
     <MapLayerToggle v-model="activeLayer" />
 
+    <p class="live-status" role="status">
+      <span v-if="loading">Open-Meteo·VIIRS 실시간 데이터를 불러오는 중…</span>
+      <span v-else-if="error" class="is-error">{{ error }}</span>
+      <span v-else-if="updatedAt">실데이터 갱신 {{ updatedAt.toLocaleTimeString('ko-KR') }}</span>
+    </p>
+
     <div class="map-layout">
       <StargazingMap
         class="map-pane"
@@ -79,7 +105,7 @@ function selectSite(id) {
         @select="selectSite"
       />
       <SiteDetailPanel
-        v-if="selectedSite && selectedEvaluation"
+        v-if="selectedSite && selectedEvaluation?.factors"
         class="detail-pane"
         :site="selectedSite"
         :evaluation="selectedEvaluation"
@@ -98,6 +124,7 @@ function selectSite(id) {
         v-model="selectedTime"
         :time-slots="timeSlots"
         :hourly-scores="hourlyScores"
+        :timezone="selectedSite?.timezone"
       />
       <p v-else class="no-night-note">
         이 위치·날짜 기준으로는 오늘 밤 항해박명 구간을 계산할 수 없어요(예: 백야 지역).
@@ -163,6 +190,19 @@ function selectSite(id) {
 .view-intro {
   position: relative;
   z-index: 1;
+}
+
+.live-status {
+  position: relative;
+  z-index: 1;
+  min-height: 20px;
+  margin: -8px 0 0;
+  color: var(--sg-text-inverse-500);
+  font-size: 0.78rem;
+}
+
+.live-status .is-error {
+  color: var(--sg-warning);
 }
 
 .view-intro h1 {

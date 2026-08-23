@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted, onUnmounted, watch } from 'vue'
-import { Map as MapLibreMap, Marker, NavigationControl } from 'maplibre-gl'
+import { LngLatBounds, Map as MapLibreMap, Marker, NavigationControl } from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 
 const props = defineProps({
@@ -89,7 +89,9 @@ function renderMarkers() {
 
     let halo = halos.get(site.id)
     if (!halo) {
-      halo = new Marker({ element: buildHaloEl() }).setLngLat([site.longitude, site.latitude]).addTo(map)
+      halo = new Marker({ element: buildHaloEl() })
+        .setLngLat([site.longitude, site.latitude])
+        .addTo(map)
       halos.set(site.id, halo)
     }
     const haloEl = halo.getElement()
@@ -119,13 +121,20 @@ onMounted(() => {
   map = new MapLibreMap({
     container: mapEl.value,
     style: 'https://demotiles.maplibre.org/style.json',
-    center: [127.8, 36.3],
-    zoom: 6.2,
+    center: [15, 20],
+    zoom: 1.2,
     attributionControl: true,
   })
   map.addControl(new NavigationControl({ showCompass: false }), 'top-right')
   map.on('error', (e) => console.error('[StargazingMap] MapLibre error:', e?.error?.message ?? e))
-  map.on('load', renderMarkers)
+  map.on('load', () => {
+    renderMarkers()
+    if (props.sites.length > 1) {
+      const bounds = new LngLatBounds()
+      props.sites.forEach((site) => bounds.extend([site.longitude, site.latitude]))
+      map.fitBounds(bounds, { padding: 36, maxZoom: 3, duration: 0 })
+    }
+  })
 
   // 그리드/플렉스 레이아웃 안에서는 컨테이너의 최종 크기가 지도 생성 시점 이후에
   // 확정되는 경우가 있다. 그러면 캔버스 내부 좌표계가 어긋나 지도가 빈 화면으로 보인다.
@@ -171,7 +180,11 @@ watch(() => [props.scores, props.activeLayer, props.selectedSiteId], renderMarke
 
 :deep(.site-halo) {
   border-radius: 50%;
-  background: radial-gradient(circle, var(--halo-color, rgba(45, 212, 191, 0.5)) 0%, transparent 72%);
+  background: radial-gradient(
+    circle,
+    var(--halo-color, rgba(45, 212, 191, 0.5)) 0%,
+    transparent 72%
+  );
   filter: blur(6px);
   pointer-events: none;
   z-index: 0;

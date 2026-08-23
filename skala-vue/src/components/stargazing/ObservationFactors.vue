@@ -15,6 +15,9 @@ defineProps({
       <p v-if="factors.darkness.bortleEstimate != null" class="factor-note">
         Bortle {{ factors.darkness.bortleEstimate }} 추정
       </p>
+      <p v-else-if="factors.darkness.radianceNanoWatts != null" class="factor-note">
+        VIIRS {{ factors.darkness.radianceNanoWatts.toFixed(2) }} nW/sr/cm²
+      </p>
     </li>
     <li>
       <div class="factor-head">
