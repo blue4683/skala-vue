@@ -25,11 +25,13 @@ function createStorage() {
 
 beforeEach(() => {
   vi.stubGlobal('localStorage', createStorage())
+  vi.stubEnv('VITE_OWM_API_KEY', 'test-key')
   axios.get.mockReset()
 })
 
 afterEach(() => {
   vi.restoreAllMocks()
+  vi.unstubAllEnvs()
   vi.unstubAllGlobals()
 })
 
@@ -48,6 +50,7 @@ describe('weatherAt', () => {
     }
 
     expect(weatherAt(forecast, new Date(1_800_003_500_000))).toEqual({
+      provider: 'open-meteo',
       temperatureC: 8,
       precipitationMm: 0.2,
       cloudPercent: 60,
@@ -74,8 +77,43 @@ describe('fetchStargazingWeather', () => {
 
     expect(live).toMatchObject({ source: 'live', fetchedAt: 1_000_000 })
     expect(cached).toMatchObject({ source: 'cache', fetchedAt: 1_000_000 })
-    expect(cached.forecasts[SITE.id]).toEqual(forecast)
+    expect(cached.forecasts[SITE.id]).toEqual({ ...forecast, provider: 'open-meteo' })
     expect(axios.get).toHaveBeenCalledTimes(1)
+  })
+
+  it('Open-Meteo가 실패하면 OpenWeather 예보를 공통 형식으로 변환한다', async () => {
+    axios.get.mockRejectedValueOnce({ response: { status: 429 } }).mockResolvedValueOnce({
+      data: {
+        list: [
+          {
+            dt: 1_800_000_000,
+            main: { temp: 7 },
+            rain: { '3h': 0.6 },
+            clouds: { all: 35 },
+            visibility: 9000,
+            wind: { speed: 3 },
+          },
+        ],
+      },
+    })
+
+    const fallback = await fetchStargazingWeather([SITE])
+
+    expect(fallback).toMatchObject({ source: 'live', provider: 'openweather' })
+    expect(weatherAt(fallback.forecasts[SITE.id], new Date(1_800_000_000_000))).toEqual({
+      provider: 'openweather',
+      temperatureC: 7,
+      precipitationMm: 0.6,
+      cloudPercent: 35,
+      lowCloudPercent: null,
+      visibilityM: 9000,
+      windSpeedMps: 3,
+    })
+    expect(axios.get).toHaveBeenNthCalledWith(
+      2,
+      'https://api.openweathermap.org/data/2.5/forecast',
+      expect.objectContaining({ params: expect.objectContaining({ appid: 'test-key' }) }),
+    )
   })
 
   it('캐시 만료 후 429가 발생하면 수집 시각을 유지한 저장 예보를 반환한다', async () => {
@@ -84,20 +122,25 @@ describe('fetchStargazingWeather', () => {
     await fetchStargazingWeather([SITE])
 
     now.mockReturnValue(2_000_000 + 30 * 60 * 1000 + 1)
-    axios.get.mockRejectedValueOnce({ response: { status: 429 } })
+    axios.get
+      .mockRejectedValueOnce({ response: { status: 429 } })
+      .mockRejectedValueOnce({ response: { status: 503 } })
 
     const fallback = await fetchStargazingWeather([SITE])
 
     expect(fallback).toMatchObject({ source: 'stale-cache', fetchedAt: 2_000_000 })
-    expect(fallback.forecasts[SITE.id]).toEqual(forecast)
-    expect(axios.get).toHaveBeenCalledTimes(2)
+    expect(fallback).toMatchObject({ provider: 'open-meteo' })
+    expect(fallback.forecasts[SITE.id]).toEqual({ ...forecast, provider: 'open-meteo' })
+    expect(axios.get).toHaveBeenCalledTimes(3)
   })
 
-  it('저장된 예보가 없는 429는 원인을 알 수 있는 오류를 반환한다', async () => {
-    axios.get.mockRejectedValueOnce({ response: { status: 429 } })
+  it('두 API가 모두 실패하고 저장된 예보도 없으면 원인을 알 수 있는 오류를 반환한다', async () => {
+    axios.get
+      .mockRejectedValueOnce({ response: { status: 429 } })
+      .mockRejectedValueOnce({ response: { status: 503 } })
 
     await expect(fetchStargazingWeather([SITE])).rejects.toThrow(
-      'Open-Meteo 요청 한도를 초과했고 저장된 예보가 없습니다.',
+      'Open-Meteo와 OpenWeather 예보를 모두 불러오지 못했습니다.',
     )
   })
 })

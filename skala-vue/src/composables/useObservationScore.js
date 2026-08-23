@@ -5,6 +5,7 @@ import {
   checkHardGate,
   darknessScoreFrom,
   cloudScoreFrom,
+  openWeatherCloudScoreFrom,
   moonScoreFrom,
   visibilityScoreFrom,
   comfortScoreFrom,
@@ -48,9 +49,13 @@ export function evaluateSiteAt(site, date, weather) {
       radianceNanoWatts: site.lightPollution?.radianceNanoWatts ?? null,
     },
     cloud: {
-      score: cloudScoreFrom(weather.cloudPercent, weather.lowCloudPercent),
+      score:
+        weather.provider === 'openweather'
+          ? openWeatherCloudScoreFrom(weather.cloudPercent)
+          : cloudScoreFrom(weather.cloudPercent, weather.lowCloudPercent),
       totalPercent: weather.cloudPercent,
-      lowPercent: weather.lowCloudPercent,
+      lowPercent: weather.provider === 'openweather' ? null : weather.lowCloudPercent,
+      provider: weather.provider,
     },
     moon: {
       score: moonScoreFrom({

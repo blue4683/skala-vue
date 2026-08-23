@@ -3,6 +3,7 @@ import {
   checkHardGate,
   darknessScoreFrom,
   cloudScoreFrom,
+  openWeatherCloudScoreFrom,
   moonScoreFrom,
   visibilityScoreFrom,
   comfortScoreFrom,
@@ -61,6 +62,14 @@ describe('cloudScoreFrom', () => {
     const withLowCloud = cloudScoreFrom(50, 50)
     const withHighCloud = cloudScoreFrom(50, 0)
     expect(withLowCloud).toBeLessThan(withHighCloud)
+  })
+})
+
+describe('openWeatherCloudScoreFrom', () => {
+  it('저층운 데이터 없이 총 운량만 감점한다', () => {
+    expect(openWeatherCloudScoreFrom(0)).toBe(100)
+    expect(openWeatherCloudScoreFrom(35)).toBe(65)
+    expect(openWeatherCloudScoreFrom(100)).toBe(0)
   })
 })
 

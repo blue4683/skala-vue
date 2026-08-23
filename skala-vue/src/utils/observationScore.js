@@ -36,6 +36,11 @@ export function cloudScoreFrom(cloudPercent, lowCloudPercent = cloudPercent) {
   return clamp(base - lowPenalty)
 }
 
+/** OpenWeather는 저층운을 제공하지 않으므로 총 운량만으로 계산한다. */
+export function openWeatherCloudScoreFrom(cloudPercent) {
+  return clamp(100 - cloudPercent)
+}
+
 /**
  * 달의 조도(illuminationPercent)·고도·대상과의 각거리를 함께 반영한다.
  * 달이 지평선 아래면 조도와 무관하게 영향이 없다.

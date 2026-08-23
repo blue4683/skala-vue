@@ -13,6 +13,7 @@ const {
   error,
   weatherUpdatedAt,
   weatherSource,
+  weatherProvider,
   loadLiveData,
   evaluateAt,
   buildTonightSlots,
@@ -62,13 +63,16 @@ const weatherStatusLabel = computed(() => {
     minute: '2-digit',
   })
 
+  const providerLabel =
+    weatherProvider.value === 'openweather' ? 'OpenWeather 대체 예보' : 'Open-Meteo 예보'
+
   if (weatherSource.value === 'stale-cache') {
-    return `Open-Meteo 요청 제한으로 저장된 예보를 표시합니다 · ${collectedAt} 수집`
+    return `실시간 예보 조회 실패로 저장된 ${providerLabel}를 표시합니다 · ${collectedAt} 수집`
   }
   if (weatherSource.value === 'cache') {
-    return `저장된 Open-Meteo 예보 · ${collectedAt} 수집`
+    return `저장된 ${providerLabel} · ${collectedAt} 수집`
   }
-  return `Open-Meteo 예보 · ${collectedAt} 수집`
+  return `${providerLabel} · ${collectedAt} 수집`
 })
 
 function selectSite(id) {
@@ -120,10 +124,15 @@ onMounted(async () => {
     </div>
 
     <p class="live-status" role="status" aria-live="polite">
-      <span v-if="loading">Open-Meteo·VIIRS 실시간 데이터를 불러오는 중…</span>
+      <span v-if="loading">날씨 예보·VIIRS 실시간 데이터를 불러오는 중…</span>
       <template v-else>
         <span v-if="error" class="is-error">{{ error }}</span>
-        <span v-if="weatherStatusLabel" :class="{ 'is-warning': weatherSource === 'stale-cache' }">
+        <span
+          v-if="weatherStatusLabel"
+          :class="{
+            'is-warning': weatherSource === 'stale-cache' || weatherProvider === 'openweather',
+          }"
+        >
           {{ weatherStatusLabel }}
         </span>
       </template>

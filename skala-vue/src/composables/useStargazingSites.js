@@ -16,6 +16,7 @@ export function useStargazingSites() {
   const error = ref(null)
   const weatherUpdatedAt = ref(null)
   const weatherSource = ref(null)
+  const weatherProvider = ref(null)
 
   const sites = computed(() =>
     stargazingCitiesData.cities.map((city) => {
@@ -49,6 +50,7 @@ export function useStargazingSites() {
       forecasts.value = weatherResult.value.forecasts
       weatherUpdatedAt.value = new Date(weatherResult.value.fetchedAt)
       weatherSource.value = weatherResult.value.source
+      weatherProvider.value = weatherResult.value.provider
     }
 
     const nextLight = {}
@@ -156,6 +158,7 @@ export function useStargazingSites() {
     error,
     weatherUpdatedAt,
     weatherSource,
+    weatherProvider,
     loadLiveData,
     weatherFor,
     evaluateAt,
