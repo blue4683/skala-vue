@@ -113,3 +113,5 @@ components/*.vue        API 필드명(`main.temp`, `sys.sunset`)을 몰라도 �
 - `views/WeatherView.vue` -> `mocks/*.json` 6종(맑음/비/폭풍/안개/극야/백야)을 버튼으로 전환하며 장면을 미리 볼 수 있게 조립. 폭풍/안개/극야 같은 상황은 실제로 기다릴 수 없으므로 목업 없이는 개발도 확인도 불가능함
     - `useWeather`의 `loadMock`은 정규화 층을 거치지 않고 `raw`에 그대로 꽂으므로, mock JSON은 API 원본이 아니라 **정규화된 이후의 모양**(`{ lat, lon, timezone, timezone_offset, data: [...] }`)으로 작성함
     - `/scene` 라우트로 등록하고 헤더 네비게이션에 "날씨 장면" 링크 추가
+
+- "실시간 날씨 조회" 버튼을 테스트하다가 `api/weather.js`의 `BASE` URL에 꺾쇠괄호와 `.ord` 오타가 있어 실제 API 호출이 항상 실패하던 것, 그리고 `catch` 블록의 `throw`가 콤마 연산자로 묶여 있어 `Error` 대신 `{ cause }` 객체가 던져지던 것을 발견 -> 둘 다 수정함(Stage 3에서 이미 커밋된 코드라 별도 커밋으로 분리)
