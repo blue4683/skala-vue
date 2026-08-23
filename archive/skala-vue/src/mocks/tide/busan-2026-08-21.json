@@ -1,0 +1,46 @@
+{
+  "_note": "실측 스냅샷 — data.go.kr 조석예보(고, 저조) API(DT_0005 부산) 실키로 직접 확인한 응답 (tide-feature-design.md §2.3).",
+  "header": { "resultCode": "00", "resultMsg": "NORMAL_SERVICE" },
+  "body": {
+    "items": {
+      "item": [
+        {
+          "obsvtrNm": "부산",
+          "lot": 129.03527,
+          "lat": 35.09638,
+          "predcDt": "2026-08-21 00:38",
+          "predcTdlvVl": 93.0,
+          "extrSe": "1"
+        },
+        {
+          "obsvtrNm": "부산",
+          "lot": 129.03527,
+          "lat": 35.09638,
+          "predcDt": "2026-08-21 06:45",
+          "predcTdlvVl": 63.0,
+          "extrSe": "2"
+        },
+        {
+          "obsvtrNm": "부산",
+          "lot": 129.03527,
+          "lat": 35.09638,
+          "predcDt": "2026-08-21 13:47",
+          "predcTdlvVl": 92.0,
+          "extrSe": "3"
+        },
+        {
+          "obsvtrNm": "부산",
+          "lot": 129.03527,
+          "lat": 35.09638,
+          "predcDt": "2026-08-21 21:11",
+          "predcTdlvVl": 73.0,
+          "extrSe": "4"
+        }
+      ]
+    },
+    "pageNo": 1,
+    "numOfRows": 10,
+    "totalCount": 4,
+    "type": "json"
+  }
+}
