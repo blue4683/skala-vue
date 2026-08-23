@@ -18,5 +18,5 @@ font-size: 18px;
 </style>
 
 <style>
-@import '@/assets/challenge.css';
+@import '../assets/challenge.css';
 </style>

@@ -32,6 +32,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
+      '@archive': fileURLToPath(new URL('../archive/skala-vue/src', import.meta.url)),
     },
   },
   // maplibre-gl은 내부적으로 Worker(new URL(...))로 자체 워커 스크립트를 참조하는데,

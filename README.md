@@ -74,10 +74,10 @@
 
 ### 외부 데이터와 브라우저 캐시
 
-- 현재 날씨만으로 오늘 밤의 관측 조건을 판단하기 어려워 [Open-Meteo Forecast API](https://open-meteo.com/en/docs)의 시간별 구름, 강수, 시정, 풍속, 기온 예보를 추가했음.
+- 현재 날씨만으로 오늘 밤의 관측 조건을 판단하기 어려워 [Open-Meteo Forecast API](https://open-meteo.com/en/docs)의 시간별 구름, 강수, 시정, 풍속, 기온 예보를 우선 사용하고, 조회 실패 시 OpenWeather 5일 예보로 전환하도록 구성했음.
 - [ArcGIS Image Service Identify](https://developers.arcgis.com/rest/services-reference/enterprise/identify-image-service/)로 최신 VIIRS 월간 야간광을 조회하고 장소 간 비교용 상대 어두움 점수로 변환하도록 구성함.
 - 여러 요청 중 일부가 실패해도 성공한 결과를 유지하기 위해 [`Promise.allSettled()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/allSettled)를 적용했음.
-- 중복 호출과 요청 제한의 영향을 줄이기 위해 [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API)로 Open-Meteo 응답을 30분간 캐싱하도록 구성함.
+- 중복 호출과 요청 제한의 영향을 줄이기 위해 [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API)로 사용 중인 날씨 예보를 30분간 캐싱하도록 구성함.
 
 ### 테스트와 배포 프록시
 
@@ -106,7 +106,7 @@
 - Astronomy Engine을 이용한 별자리 고도·방위 계산
 - 선택한 시각에 지평선 위에 있는 별자리만 표시
 - 고정된 지도·정보 영역과 정보 패널 내부 스크롤
-- Open-Meteo 예보를 30분간 브라우저에 캐싱하고 요청 제한 시 수집 시각과 함께 저장된 데이터 표시
+- 날씨 예보를 30분간 브라우저에 캐싱하고 두 제공처 모두 실패하면 수집 시각과 함께 저장된 데이터 표시
 
 지도 마커의 추천 점수는 각 도시의 오늘 밤 기본 관측 시각을 기준으로 비교합니다. 도시를 선택한 뒤 시간 리본을 변경하면 해당 도시의 상세 점수와 별자리 정보가 선택한 시각에 맞춰 갱신됩니다.
 
@@ -130,14 +130,20 @@
 
 OpenWeather 응답에 포함되지 않은 선택 항목은 화면에서 빈 값으로 안전하게 처리합니다.
 
+### Vue 실습 아카이브
+
+- `/archive`에서 보관된 Vue 실습 컴포넌트 30개를 현재 앱 안에서 직접 실행
+- 템플릿·디렉티브, 반응성·생명주기, 컴포넌트 통신, Pinia 상태 관리로 분류
+- 주제 필터를 사용해 긴 실습 목록을 필요한 범위로 축소
+
 ## 데이터 출처
 
-| 용도                  | 데이터                          | 비고                                                                |
-| --------------------- | ------------------------------- | ------------------------------------------------------------------- |
-| 별 관측용 시간별 날씨 | Open-Meteo Forecast API         | 구름, 강수, 시정, 풍속, 기온을 사용하며 API 키가 필요하지 않습니다. |
-| 날씨 대시보드·상세    | OpenWeather Current Weather API | `VITE_OWM_API_KEY`가 필요합니다.                                    |
-| 광공해                | VIIRS 월간 야간광 ImageServer   | 좌표별 원시 복사휘도를 상대 어두움 점수로 변환합니다.               |
-| 태양·달·별 위치       | Astronomy Engine                | 관측 위치와 시각을 기준으로 고도와 방위를 계산합니다.               |
+| 용도                  | 데이터                                              | 비고                                                                                                                      |
+| --------------------- | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| 별 관측용 시간별 날씨 | Open-Meteo Forecast API, OpenWeather 5 Day Forecast | Open-Meteo를 우선 사용하며 실패 시 OpenWeather로 전환합니다. OpenWeather 점수는 저층운을 제외하고 총 운량으로 계산합니다. |
+| 날씨 대시보드·상세    | OpenWeather Current Weather API                     | `VITE_OWM_API_KEY`가 필요합니다.                                                                                          |
+| 광공해                | VIIRS 월간 야간광 ImageServer                       | 좌표별 원시 복사휘도를 상대 어두움 점수로 변환합니다.                                                                     |
+| 태양·달·별 위치       | Astronomy Engine                                    | 관측 위치와 시각을 기준으로 고도와 방위를 계산합니다.                                                                     |
 
 VIIRS 값은 위성에서 관측한 상향 복사휘도입니다. 지상의 Bortle 등급이나 SQM 실측값과 동일하지 않으므로 장소 간 상대 비교 용도로만 사용합니다. 관측 점수 역시 실제 관측 가능성을 보장하는 값이 아니며 현장 기상과 접근 조건을 함께 확인해야 합니다.
 
@@ -195,12 +201,13 @@ skala-vue/
 ├── src/
 │   ├── api/
 │   │   ├── weather.js              # OpenWeather 현재 날씨 요청
-│   │   ├── stargazingWeather.js    # Open-Meteo 관측용 예보 요청
+│   │   ├── stargazingWeather.js    # Open-Meteo 우선·OpenWeather 대체 관측 예보
 │   │   ├── lightPollution.js        # VIIRS 야간광 요청
 │   │   └── normalizeWeather.js      # 날씨 응답 정규화
 │   ├── components/
 │   │   ├── exercise/                # 날씨 대시보드 컴포넌트
 │   │   └── stargazing/              # 지도, 시간 선택, 관측 상세 컴포넌트
+│   ├── views/ArchiveView.vue         # archive 실습 컴포넌트 실행 페이지
 │   ├── composables/
 │   │   ├── useGlobalCityWeather.js  # 도시별 현재 날씨 공용 상태
 │   │   ├── useStargazingSites.js    # 관측 도시 실데이터 로딩
@@ -226,7 +233,7 @@ API 응답은 화면에서 직접 사용하지 않고 `api → 정규화 → com
 - 관측 점수의 하드 게이트와 가중치 계산
 - 추천 관측 시간 구간 계산
 - 별자리 가시성과 지평선 아래 별자리 제외
-- Open-Meteo와 VIIRS 응답 처리
+- Open-Meteo 우선 조회, OpenWeather fallback과 VIIRS 응답 처리
 
 ```bash
 cd skala-vue

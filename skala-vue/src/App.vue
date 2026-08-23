@@ -10,6 +10,7 @@ const route = useRoute()
     <nav aria-label="주요 메뉴">
       <RouterLink to="/">별 관측 지도</RouterLink>
       <RouterLink to="/dashboard">날씨 대시보드</RouterLink>
+      <RouterLink to="/archive">Vue 실습</RouterLink>
       <RouterLink to="/about">About</RouterLink>
     </nav>
     <UnitToggler v-if="route.path === '/dashboard' || route.name === 'weather-detail'" />
