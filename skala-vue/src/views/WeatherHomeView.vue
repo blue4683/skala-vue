@@ -1,20 +1,16 @@
 <script setup>
-import { computed, watch, watchEffect, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { Sunny, Warning } from '@element-plus/icons-vue'
+import { Location, Refresh, Warning } from '@element-plus/icons-vue'
 import BaseDashboardCard from '@/components/exercise/BaseDashboardCard.vue'
 import SearchBar from '@/components/exercise/SearchBar.vue'
 import WeatherCard from '@/components/exercise/WeatherCard.vue'
+import { useGlobalCityWeather } from '@/composables/useGlobalCityWeather'
 
 const router = useRouter()
-
-const weatherList = ref([
-  { id: 'city_01', name: '서울', temp: 28, humidity: 65, status: '맑음' },
-  { id: 'city_02', name: '수원', temp: 24, humidity: 80, status: '비' },
-  { id: 'city_03', name: '부산', temp: 26, humidity: 70, status: '구름' },
-  { id: 'city_04', name: '광주', temp: 24, humidity: 0, status: '맑음' },
-])
+const { cities, cityWeatherList, loading, initialized, error, updatedAt, loadAll } =
+  useGlobalCityWeather()
 
 const cityName = ref('')
 const selectedCity = ref(null)
@@ -24,49 +20,65 @@ function getDiscomfortIndex(temp, humidity) {
 }
 
 function getDiscomfortLevel(index) {
-  if (index >= 80) return { label: '매우 높음', emoji: '🥵' }
-  if (index >= 75) return { label: '높음', emoji: '😖' }
-  if (index >= 68) return { label: '보통', emoji: '😐' }
-  return { label: '낮음', emoji: '😊' }
+  if (index >= 80) return { label: '매우 높음' }
+  if (index >= 75) return { label: '높음' }
+  if (index >= 68) return { label: '보통' }
+  return { label: '낮음' }
 }
 
 function selectCity(city) {
   selectedCity.value = city
-  ElMessage({ message: `${city.name}의 날씨를 선택했어요.`, type: 'success', grouping: true })
+  ElMessage({ message: `${city.nameKo}의 날씨를 선택했어요.`, type: 'success', grouping: true })
 }
 
-const showDetail = (cityId) => {
-  router.push('/weather/' + cityId)
+function showDetail(cityId) {
+  router.push({ name: 'weather-detail', params: { cityId } })
 }
 
-const filteredWeatherList = computed(() =>
-  (cityName.value
-    ? weatherList.value.filter((city) => city.name.includes(cityName.value))
-    : weatherList.value
-  ).map((city) => {
-    const discomfortIndex = getDiscomfortIndex(city.temp, city.humidity)
+const filteredWeatherList = computed(() => {
+  const query = cityName.value.trim().toLocaleLowerCase()
+  const matches = query
+    ? cityWeatherList.value.filter((city) =>
+        [city.nameKo, city.name, city.region, city.countryCode, city.nearbyObservationArea]
+          .join(' ')
+          .toLocaleLowerCase()
+          .includes(query),
+      )
+    : cityWeatherList.value
+
+  return matches.map((city) => {
+    const temp = city.weather?.temperatureC
+    const humidity = city.weather?.humidityPercent
+    if (temp == null || humidity == null) return city
+
+    const discomfortIndex = getDiscomfortIndex(temp, humidity)
     return {
       ...city,
       discomfortIndex,
-      discomforLevel: getDiscomfortLevel(discomfortIndex),
+      discomfortLevel: getDiscomfortLevel(discomfortIndex),
     }
-  }),
-)
+  })
+})
 
 const statusMessage = computed(() => {
   if (!selectedCity.value) return '카드를 클릭하거나 검색해 보세요.'
-  const index = getDiscomfortIndex(selectedCity.value.temp, selectedCity.value.humidity)
+  if (!selectedCity.value.weather) {
+    return `${selectedCity.value.nameKo}의 현재 예보를 불러오지 못했습니다.`
+  }
+
+  const { temperatureC, humidityPercent, conditionLabel } = selectedCity.value.weather
+  const index = getDiscomfortIndex(temperatureC, humidityPercent)
   const level = getDiscomfortLevel(index)
-  return `${selectedCity.value.name} (${selectedCity.value.status}) 현재 기온: ${selectedCity.value.temp}℃, 습도: ${selectedCity.value.status}%, 불쾌지수: ${index.toFixed(1)} ${level.emoji} (${level.label})`
+  return `${selectedCity.value.nameKo} · ${conditionLabel} · ${temperatureC}℃ · 습도 ${humidityPercent}% · 불쾌지수 ${index.toFixed(1)} (${level.label})`
 })
 
-watch(selectedCity, (newVal, oldVal) => {
-  console.log(`도시 선택 변경 ${oldVal != undefined ? oldVal.name : '없음'} -> ${newVal.name}`)
-})
+const updatedLabel = computed(() =>
+  updatedAt.value
+    ? updatedAt.value.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })
+    : null,
+)
 
-watchEffect(() => {
-  console.log(`[자동 감지] 검색한 도시: ${cityName.value}`)
-})
+onMounted(() => loadAll())
 </script>
 
 <template>
@@ -78,33 +90,67 @@ watchEffect(() => {
       <div>
         <h1>오늘의 날씨,<br /><em>가볍게 확인하세요.</em></h1>
         <p class="hero-copy">
-          대한민국 주요 도시의 기온과 습도, 불쾌지수를 한 화면에서 비교해 보세요.
+          별 관측 지도와 동일한 전 세계 후보 도시의 기온과 습도, 구름 상태를 비교해 보세요.
         </p>
       </div>
       <div class="hero-weather" aria-hidden="true">
-        <el-icon><Sunny /></el-icon><span>28º</span>
+        <el-icon><Location /></el-icon><span>{{ cities.length }}곳</span>
       </div>
     </section>
 
     <section class="dashboard-grid">
       <BaseDashboardCard title="도시 검색" class="search-panel">
         <SearchBar :city-name="cityName" @update-query="cityName = $event" />
+        <p class="search-scope">별 관측 지도에 등록된 도시명·국가·지역을 검색합니다.</p>
       </BaseDashboardCard>
 
       <BaseDashboardCard title="지역별 날씨 현황" class="weather-panel">
-        <p class="result-count">
-          <b>{{ filteredWeatherList.length }}</b
-          >개 도시의 날씨 정보
-        </p>
-        <WeatherCard
-          v-for="city in filteredWeatherList"
-          :key="city.id"
-          :city="city"
-          @select-card="selectCity"
-          @click-detail="showDetail"
-        />
+        <div class="weather-toolbar">
+          <p class="result-count">
+            <b>{{ filteredWeatherList.length }}</b
+            >개 별 관측 도시
+          </p>
+          <span v-if="updatedLabel" class="updated-at">{{ updatedLabel }} 기준</span>
+        </div>
+
+        <el-alert
+          v-if="error"
+          class="load-error"
+          :title="
+            updatedAt
+              ? '날씨 갱신에 실패해 기존 예보를 표시합니다.'
+              : '날씨 정보를 불러오지 못해 도시 정보만 표시합니다.'
+          "
+          type="warning"
+          :closable="false"
+          show-icon
+        >
+          <template #default>
+            <el-button text type="warning" @click="loadAll({ force: true })">
+              <el-icon><Refresh /></el-icon> 다시 불러오기
+            </el-button>
+          </template>
+        </el-alert>
+
+        <div
+          v-if="!initialized || (loading && !updatedAt)"
+          class="weather-skeletons"
+          aria-label="날씨 로딩 중"
+        >
+          <el-skeleton v-for="index in 6" :key="index" :rows="3" animated />
+        </div>
+        <div v-else class="weather-list">
+          <WeatherCard
+            v-for="city in filteredWeatherList"
+            :key="city.id"
+            :city="city"
+            :selected="selectedCity?.id === city.id"
+            @select-card="selectCity"
+            @click-detail="showDetail"
+          />
+        </div>
         <el-empty
-          v-if="!filteredWeatherList.length"
+          v-if="initialized && !loading && !filteredWeatherList.length"
           description="일치하는 도시가 없습니다."
           :image-size="70"
         ></el-empty>
@@ -213,19 +259,63 @@ watchEffect(() => {
   position: relative;
   z-index: 1;
   display: grid;
-  grid-template-columns: 320px 1fr;
+  grid-template-columns: 280px minmax(0, 1fr);
   gap: 16px;
   align-items: start;
 }
 
+.search-panel {
+  position: sticky;
+  top: 16px;
+}
+
+.search-scope {
+  margin: 12px 0 0;
+  color: var(--sg-text-inverse-500);
+  font-size: 0.75rem;
+}
+
+.weather-toolbar {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
 .result-count {
-  margin: 0 0 12px;
+  margin: 0;
   font-size: 0.85rem;
   color: var(--sg-text-inverse-700);
 }
 
 .result-count b {
   color: var(--sg-text-inverse-900);
+}
+
+.updated-at {
+  color: var(--sg-text-inverse-500);
+  font-size: 0.72rem;
+  white-space: nowrap;
+}
+
+.load-error {
+  margin-bottom: 12px;
+}
+
+.weather-list,
+.weather-skeletons {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 10px;
+}
+
+.weather-skeletons :deep(.el-skeleton) {
+  min-height: 142px;
+  padding: 16px;
+  border: 1px solid var(--sg-border-dark);
+  border-radius: 14px;
+  background: var(--sg-bg-elevated-2);
 }
 
 .status-banner {
@@ -242,6 +332,17 @@ watchEffect(() => {
 
 @media (max-width: 860px) {
   .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .search-panel {
+    position: static;
+  }
+}
+
+@media (max-width: 520px) {
+  .weather-list,
+  .weather-skeletons {
     grid-template-columns: 1fr;
   }
 }

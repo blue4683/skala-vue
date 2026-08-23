@@ -29,9 +29,9 @@ export async function fetchStargazingWeather(sites) {
   return Object.fromEntries(sites.map((site, index) => [site.id, forecasts[index]]))
 }
 
-export function weatherAt(forecast, date) {
+function closestHourlyIndex(forecast, date) {
   const times = forecast?.hourly?.time
-  if (!times?.length) return null
+  if (!times?.length) return -1
 
   const targetSeconds = date.getTime() / 1000
   let bestIndex = 0
@@ -41,7 +41,12 @@ export function weatherAt(forecast, date) {
     }
   }
 
-  if (Math.abs(times[bestIndex] - targetSeconds) > 90 * 60) return null
+  return Math.abs(times[bestIndex] - targetSeconds) <= 90 * 60 ? bestIndex : -1
+}
+
+export function weatherAt(forecast, date) {
+  const bestIndex = closestHourlyIndex(forecast, date)
+  if (bestIndex < 0) return null
 
   const hourly = forecast.hourly
   return {

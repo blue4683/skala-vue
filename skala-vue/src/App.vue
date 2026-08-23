@@ -12,7 +12,7 @@ const route = useRoute()
       <RouterLink to="/dashboard">날씨 대시보드</RouterLink>
       <RouterLink to="/about">About</RouterLink>
     </nav>
-    <UnitToggler v-if="route.path === '/dashboard'" />
+    <UnitToggler v-if="route.path === '/dashboard' || route.name === 'weather-detail'" />
   </header>
 
   <main>

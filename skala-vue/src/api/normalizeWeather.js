@@ -32,3 +32,35 @@ export function normalizeCurrentWeather(raw) {
     ],
   }
 }
+
+export function openWeatherConditionFromId(id) {
+  if (id >= 200 && id < 300) return { key: 'thunderstorm', label: '뇌우' }
+  if (id >= 300 && id < 400) return { key: 'drizzle', label: '이슬비' }
+  if (id >= 500 && id < 600) return { key: 'rain', label: '비' }
+  if (id >= 600 && id < 700) return { key: 'snow', label: '눈' }
+  if (id >= 700 && id < 800) return { key: 'fog', label: '안개·대기 현상' }
+  if (id === 800) return { key: 'clear', label: '맑음' }
+  if (id === 801) return { key: 'partly-cloudy', label: '구름 조금' }
+  if (id > 801 && id < 900) return { key: 'cloudy', label: '흐림' }
+  return { key: 'unknown', label: '정보 없음' }
+}
+
+export function normalizeWeatherSummary(raw) {
+  const primaryCondition = raw.weather?.[0] ?? {}
+  const condition = openWeatherConditionFromId(primaryCondition.id)
+
+  return {
+    observedAt: raw.dt != null ? raw.dt * 1000 : null,
+    temperatureC: raw.main?.temp ?? null,
+    feelsLikeC: raw.main?.feels_like ?? null,
+    humidityPercent: raw.main?.humidity ?? null,
+    precipitationMm: raw.rain?.['1h'] ?? raw.snow?.['1h'] ?? 0,
+    cloudPercent: raw.clouds?.all ?? null,
+    pressureHpa: raw.main?.pressure ?? null,
+    visibilityM: raw.visibility ?? null,
+    windSpeedMps: raw.wind?.speed ?? null,
+    windDirectionDegrees: raw.wind?.deg ?? null,
+    conditionKey: condition.key,
+    conditionLabel: primaryCondition.description ?? condition.label,
+  }
+}
