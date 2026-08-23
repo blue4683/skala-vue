@@ -4,8 +4,13 @@ import { useWeather } from '@/composables/useWeather'
 import { useScrubTime } from '@/composables/useScrubTime'
 import { useSunPath } from '@/composables/useSunPath'
 import { useSceneParams } from '@/composables/useSceneParams'
+import { useTide } from '@/composables/useTide'
+import { buildTideSeries, withTideSlope } from '@/utils/tideCurve'
+import { buildBands, strongFlowRule } from '@/utils/conditionBands'
 import SceneStage from '@/components/scene/SceneStage.vue'
 import SunArcScrubber from '@/components/SunArcScrubber.vue'
+import TideTrack from '@/components/TideTrack.vue'
+import StationPicker from '@/components/StationPicker.vue'
 
 import clearMock from '@/mocks/clear.json'
 import rainMock from '@/mocks/rain.json'
@@ -14,6 +19,14 @@ import foggyMock from '@/mocks/foggy.json'
 import polarNightMock from '@/mocks/polar-night.json'
 import mcmurdoPolarDayMock from '@/mocks/mcmurdo-polar-day.json'
 
+import stationsData from '@/data/stations.json'
+import incheonDayPrev from '@/mocks/tide/incheon-2026-08-22.json'
+import incheonDayToday from '@/mocks/tide/incheon-2026-08-23.json'
+import incheonDayNext from '@/mocks/tide/incheon-2026-08-24.json'
+import busanDayPrev from '@/mocks/tide/busan-2026-08-22.json'
+import busanDayToday from '@/mocks/tide/busan-2026-08-23.json'
+import busanDayNext from '@/mocks/tide/busan-2026-08-24.json'
+
 const { raw, loading, error, load, loadMock } = useWeather()
 const { targetMs, isScrubbing, scrubTo, reset } = useScrubTime()
 
@@ -21,6 +34,51 @@ const current = computed(() => raw.value?.data?.[0] ?? null)
 
 const time = useSunPath(current, targetMs)
 const scene = useSceneParams(current, time)
+
+const {
+  extrema: tideExtrema,
+  rangeStart: tideRangeStart,
+  rangeEnd: tideRangeEnd,
+  normalizedLevelAt,
+  load: loadTide,
+  loadMock: loadTideMock,
+} = useTide()
+
+// 씬에 해수면을 얹는다 — Stage 5의 SeaLayer가 여기서 살아난다
+const sceneWithSea = computed(() => ({
+  ...scene.value,
+  seaLevel: tideExtrema.value.length ? normalizedLevelAt(targetMs.value) : null,
+}))
+
+const stations = stationsData.stations
+const TIDE_MOCKS = {
+  DT_0001: [incheonDayPrev, incheonDayToday, incheonDayNext],
+  DT_0005: [busanDayPrev, busanDayToday, busanDayNext],
+}
+const selectedStation = ref(stations[0])
+
+function selectStation(station) {
+  selectedStation.value = station
+  lat.value = station.lat
+  lon.value = station.lon
+  loadTideMock(TIDE_MOCKS[station.obsCode])
+}
+
+function fetchLiveTide() {
+  loadTide(selectedStation.value.obsCode)
+}
+
+// 조건 밴드 토글
+const showFlowBand = ref(true)
+
+const tideSeriesWithSlope = computed(() =>
+  withTideSlope(buildTideSeries(tideExtrema.value, tideRangeStart, tideRangeEnd)),
+)
+
+const flowBands = computed(() => {
+  if (!showFlowBand.value || !tideSeriesWithSlope.value.length) return []
+  return buildBands(tideSeriesWithSlope.value, [strongFlowRule(tideSeriesWithSlope.value)])
+})
 
 const mocks = [
   { key: 'clear', label: '맑음 · 서울', data: clearMock },
@@ -47,6 +105,7 @@ function fetchLive() {
 }
 
 pick(clearMock) // 초기 장면
+loadTideMock(TIDE_MOCKS[selectedStation.value.obsCode])
 </script>
 
 <template>
@@ -74,7 +133,7 @@ pick(clearMock) // 초기 장면
     </el-alert>
 
     <div class="stage-wrap">
-      <SceneStage :params="scene" />
+      <SceneStage :params="sceneWithSea" />
       <div v-if="loading" class="skeleton" aria-hidden="true" />
     </div>
 
@@ -87,6 +146,24 @@ pick(clearMock) // 초기 장면
       @scrub="scrubTo"
       @reset="reset"
     />
+
+    <el-card class="tide-panel" shadow="never">
+      <div class="station-row">
+        <span class="station-label">조석 관측소</span>
+        <StationPicker :stations="stations" :selected="selectedStation" @select="selectStation" />
+        <el-switch v-model="showFlowBand" active-text="물흐름 강한 구간 표시" />
+        <el-button size="small" @click="fetchLiveTide">실시간 조석 조회</el-button>
+      </div>
+
+      <TideTrack
+        :extrema="tideExtrema"
+        :range-start="tideRangeStart"
+        :range-end="tideRangeEnd"
+        :target-ms="targetMs"
+        :bands="flowBands"
+        @scrub="scrubTo"
+      />
+    </el-card>
   </div>
 </template>
 

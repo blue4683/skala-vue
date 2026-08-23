@@ -1,0 +1,16 @@
+{
+  "header": { "resultCode": "00", "resultMsg": "NORMAL_SERVICE." },
+  "body": {
+    "items": {
+      "item": [
+        { "predcDt": "2026-08-22 01:50", "predcTdlvVl": 15, "extrSe": "4" },
+        { "predcDt": "2026-08-22 08:05", "predcTdlvVl": 105, "extrSe": "1" },
+        { "predcDt": "2026-08-22 14:20", "predcTdlvVl": 12, "extrSe": "2" },
+        { "predcDt": "2026-08-22 20:35", "predcTdlvVl": 108, "extrSe": "3" }
+      ]
+    },
+    "numOfRows": 10,
+    "pageNo": 1,
+    "totalCount": 4
+  }
+}
