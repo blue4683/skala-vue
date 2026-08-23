@@ -14,12 +14,13 @@ const route = useRoute()
       <HelloWorld msg="You did it!" />
 
       <nav>
-        <RouterLink to="/">Home</RouterLink>
+        <RouterLink to="/">별 관측 지도</RouterLink>
+        <RouterLink to="/dashboard">날씨 대시보드</RouterLink>
         <RouterLink to="/scene">날씨 장면</RouterLink>
         <RouterLink to="/map">해안 지도</RouterLink>
         <RouterLink to="/about">About</RouterLink>
       </nav>
-      <UnitToggler v-if="route.path === '/'" />
+      <UnitToggler v-if="route.path === '/dashboard'" />
     </div>
   </header>
 

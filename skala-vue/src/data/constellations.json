@@ -1,0 +1,241 @@
+{
+  "_note": "설계서(docs/star-observation-map-design.md) §6.1 ConstellationDefinition 형태. 계절별 대표 별자리 23개, keyStars는 IAU 표준 밝은 별(J2000 적경/적위, 실시등급)로 구성.",
+  "constellations": [
+    {
+      "id": "UMA",
+      "nameKo": "큰곰자리",
+      "nameEn": "Ursa Major",
+      "season": "spring",
+      "keyStars": [
+        { "name": "Dubhe", "raHours": 11.0617, "decDegrees": 61.75, "magnitude": 1.79 },
+        { "name": "Alkaid", "raHours": 13.7917, "decDegrees": 49.3167, "magnitude": 1.86 },
+        { "name": "Merak", "raHours": 11.03, "decDegrees": 56.3833, "magnitude": 2.37 }
+      ]
+    },
+    {
+      "id": "BOO",
+      "nameKo": "목동자리",
+      "nameEn": "Bootes",
+      "season": "spring",
+      "keyStars": [
+        { "name": "Arcturus", "raHours": 14.2617, "decDegrees": 19.1833, "magnitude": -0.05 },
+        { "name": "Izar", "raHours": 14.75, "decDegrees": 27.0667, "magnitude": 2.37 },
+        { "name": "Seginus", "raHours": 14.535, "decDegrees": 38.3, "magnitude": 3.03 }
+      ]
+    },
+    {
+      "id": "LEO",
+      "nameKo": "사자자리",
+      "nameEn": "Leo",
+      "season": "spring",
+      "keyStars": [
+        { "name": "Regulus", "raHours": 10.14, "decDegrees": 11.9667, "magnitude": 1.36 },
+        { "name": "Denebola", "raHours": 11.8183, "decDegrees": 14.5667, "magnitude": 2.14 },
+        { "name": "Algieba", "raHours": 10.3333, "decDegrees": 19.8333, "magnitude": 2.61 }
+      ]
+    },
+    {
+      "id": "VIR",
+      "nameKo": "처녀자리",
+      "nameEn": "Virgo",
+      "season": "spring",
+      "keyStars": [
+        { "name": "Spica", "raHours": 13.42, "decDegrees": -11.15, "magnitude": 0.97 },
+        { "name": "Porrima", "raHours": 12.695, "decDegrees": -1.45, "magnitude": 2.74 },
+        { "name": "Vindemiatrix", "raHours": 13.0367, "decDegrees": 10.95, "magnitude": 2.85 }
+      ]
+    },
+    {
+      "id": "CRV",
+      "nameKo": "까마귀자리",
+      "nameEn": "Corvus",
+      "season": "spring",
+      "keyStars": [
+        { "name": "Gienah", "raHours": 12.2633, "decDegrees": -17.5333, "magnitude": 2.59 },
+        { "name": "Kraz", "raHours": 12.4983, "decDegrees": -23.1667, "magnitude": 2.65 }
+      ]
+    },
+    {
+      "id": "CYG",
+      "nameKo": "백조자리",
+      "nameEn": "Cygnus",
+      "season": "summer",
+      "keyStars": [
+        { "name": "Deneb", "raHours": 20.69, "decDegrees": 45.2833, "magnitude": 1.25 },
+        { "name": "Sadr", "raHours": 20.37, "decDegrees": 40.25, "magnitude": 2.23 },
+        { "name": "Albireo", "raHours": 19.5117, "decDegrees": 27.9667, "magnitude": 3.18 }
+      ]
+    },
+    {
+      "id": "LYR",
+      "nameKo": "거문고자리",
+      "nameEn": "Lyra",
+      "season": "summer",
+      "keyStars": [
+        { "name": "Vega", "raHours": 18.615, "decDegrees": 38.7833, "magnitude": 0.03 },
+        { "name": "Sheliak", "raHours": 18.835, "decDegrees": 33.3667, "magnitude": 3.52 }
+      ]
+    },
+    {
+      "id": "AQL",
+      "nameKo": "독수리자리",
+      "nameEn": "Aquila",
+      "season": "summer",
+      "keyStars": [
+        { "name": "Altair", "raHours": 19.8467, "decDegrees": 8.8667, "magnitude": 0.77 },
+        { "name": "Tarazed", "raHours": 19.7717, "decDegrees": 10.6167, "magnitude": 2.72 }
+      ]
+    },
+    {
+      "id": "SCO",
+      "nameKo": "전갈자리",
+      "nameEn": "Scorpius",
+      "season": "summer",
+      "keyStars": [
+        { "name": "Antares", "raHours": 16.49, "decDegrees": -26.4333, "magnitude": 0.96 },
+        { "name": "Shaula", "raHours": 17.56, "decDegrees": -37.1, "magnitude": 1.62 },
+        { "name": "Sargas", "raHours": 17.6217, "decDegrees": -43.0, "magnitude": 1.87 }
+      ]
+    },
+    {
+      "id": "SGR",
+      "nameKo": "궁수자리",
+      "nameEn": "Sagittarius",
+      "season": "summer",
+      "keyStars": [
+        { "name": "Kaus Australis", "raHours": 18.4033, "decDegrees": -34.3833, "magnitude": 1.85 },
+        { "name": "Nunki", "raHours": 18.9217, "decDegrees": -26.3, "magnitude": 2.05 }
+      ]
+    },
+    {
+      "id": "HER",
+      "nameKo": "헤라클레스자리",
+      "nameEn": "Hercules",
+      "season": "summer",
+      "keyStars": [
+        { "name": "Kornephoros", "raHours": 16.5017, "decDegrees": 21.4833, "magnitude": 2.78 },
+        { "name": "Zeta Her", "raHours": 16.6883, "decDegrees": 31.6, "magnitude": 2.81 }
+      ]
+    },
+    {
+      "id": "PEG",
+      "nameKo": "페가수스자리",
+      "nameEn": "Pegasus",
+      "season": "autumn",
+      "keyStars": [
+        { "name": "Markab", "raHours": 23.0783, "decDegrees": 15.2, "magnitude": 2.49 },
+        { "name": "Scheat", "raHours": 23.0633, "decDegrees": 28.0833, "magnitude": 2.42 },
+        { "name": "Algenib", "raHours": 0.22, "decDegrees": 15.1833, "magnitude": 2.83 }
+      ]
+    },
+    {
+      "id": "AND",
+      "nameKo": "안드로메다자리",
+      "nameEn": "Andromeda",
+      "season": "autumn",
+      "keyStars": [
+        { "name": "Alpheratz", "raHours": 0.14, "decDegrees": 29.0833, "magnitude": 2.06 },
+        { "name": "Mirach", "raHours": 1.1617, "decDegrees": 35.6167, "magnitude": 2.05 },
+        { "name": "Almach", "raHours": 2.065, "decDegrees": 42.3333, "magnitude": 2.26 }
+      ]
+    },
+    {
+      "id": "CAS",
+      "nameKo": "카시오페이아자리",
+      "nameEn": "Cassiopeia",
+      "season": "autumn",
+      "keyStars": [
+        { "name": "Schedar", "raHours": 0.675, "decDegrees": 56.5333, "magnitude": 2.23 },
+        { "name": "Caph", "raHours": 0.1533, "decDegrees": 59.15, "magnitude": 2.27 },
+        { "name": "Gamma Cas", "raHours": 0.945, "decDegrees": 60.7167, "magnitude": 2.5 }
+      ]
+    },
+    {
+      "id": "CEP",
+      "nameKo": "케페우스자리",
+      "nameEn": "Cepheus",
+      "season": "autumn",
+      "keyStars": [
+        { "name": "Alderamin", "raHours": 21.31, "decDegrees": 62.5833, "magnitude": 2.44 },
+        { "name": "Alfirk", "raHours": 21.4783, "decDegrees": 70.5667, "magnitude": 3.23 }
+      ]
+    },
+    {
+      "id": "PSC",
+      "nameKo": "물고기자리",
+      "nameEn": "Pisces",
+      "season": "autumn",
+      "keyStars": [
+        { "name": "Alrescha", "raHours": 2.0333, "decDegrees": 2.7667, "magnitude": 3.82 }
+      ]
+    },
+    {
+      "id": "AQR",
+      "nameKo": "물병자리",
+      "nameEn": "Aquarius",
+      "season": "autumn",
+      "keyStars": [
+        { "name": "Sadalsuud", "raHours": 21.5267, "decDegrees": -5.5667, "magnitude": 2.87 },
+        { "name": "Sadalmelik", "raHours": 22.0967, "decDegrees": -0.3167, "magnitude": 2.95 }
+      ]
+    },
+    {
+      "id": "ORI",
+      "nameKo": "오리온자리",
+      "nameEn": "Orion",
+      "season": "winter",
+      "keyStars": [
+        { "name": "Betelgeuse", "raHours": 5.92, "decDegrees": 7.4, "magnitude": 0.42 },
+        { "name": "Rigel", "raHours": 5.2417, "decDegrees": -8.2, "magnitude": 0.13 },
+        { "name": "Bellatrix", "raHours": 5.4183, "decDegrees": 6.35, "magnitude": 1.64 }
+      ]
+    },
+    {
+      "id": "CMA",
+      "nameKo": "큰개자리",
+      "nameEn": "Canis Major",
+      "season": "winter",
+      "keyStars": [
+        { "name": "Sirius", "raHours": 6.7517, "decDegrees": -16.7167, "magnitude": -1.46 },
+        { "name": "Adhara", "raHours": 6.9767, "decDegrees": -28.9667, "magnitude": 1.5 }
+      ]
+    },
+    {
+      "id": "TAU",
+      "nameKo": "황소자리",
+      "nameEn": "Taurus",
+      "season": "winter",
+      "keyStars": [
+        { "name": "Aldebaran", "raHours": 4.5983, "decDegrees": 16.5167, "magnitude": 0.85 },
+        { "name": "Elnath", "raHours": 5.4383, "decDegrees": 28.6, "magnitude": 1.65 }
+      ]
+    },
+    {
+      "id": "GEM",
+      "nameKo": "쌍둥이자리",
+      "nameEn": "Gemini",
+      "season": "winter",
+      "keyStars": [
+        { "name": "Pollux", "raHours": 7.755, "decDegrees": 28.0333, "magnitude": 1.14 },
+        { "name": "Castor", "raHours": 7.5767, "decDegrees": 31.8833, "magnitude": 1.58 }
+      ]
+    },
+    {
+      "id": "AUR",
+      "nameKo": "마차부자리",
+      "nameEn": "Auriga",
+      "season": "winter",
+      "keyStars": [
+        { "name": "Capella", "raHours": 5.2783, "decDegrees": 46.0, "magnitude": 0.08 },
+        { "name": "Menkalinan", "raHours": 5.9917, "decDegrees": 44.95, "magnitude": 1.9 }
+      ]
+    },
+    {
+      "id": "CMI",
+      "nameKo": "작은개자리",
+      "nameEn": "Canis Minor",
+      "season": "winter",
+      "keyStars": [{ "name": "Procyon", "raHours": 7.655, "decDegrees": 5.2167, "magnitude": 0.34 }]
+    }
+  ]
+}

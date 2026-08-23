@@ -5,7 +5,12 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      name: 'home',
+      name: 'stargazing-map',
+      component: () => import('../views/StargazingMapView.vue'),
+    },
+    {
+      path: '/dashboard',
+      name: 'dashboard',
       component: () => import('../views/WeatherHomeView.vue'),
     },
     {

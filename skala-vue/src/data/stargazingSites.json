@@ -1,0 +1,125 @@
+{
+  "_note": "설계서 §7.2 StargazingSite 초기 목업. darknessScore/bortleEstimate는 실측 SQM이 아니라 지형(산간·해안·도심 거리) 기반의 잠정 추정치이며, verifiedAt은 현장 실사가 아니라 이 데이터를 정리한 날짜다. 실제 서비스 전환 시 §2의 라이선스 확보된 광공해 데이터로 교체해야 한다.",
+  "sites": [
+    {
+      "id": "site-yeongyang",
+      "name": "영양 반딧불이 천문대",
+      "region": "경북 영양군",
+      "latitude": 36.6667,
+      "longitude": 129.1128,
+      "elevationM": 400,
+      "darknessScore": 92,
+      "bortleEstimate": 2,
+      "accessNote": "국내 대표 밤하늘보호구역. 포장도로로 접근 가능, 야간 개방 시간 확인 필요",
+      "verifiedAt": "2026-08-23"
+    },
+    {
+      "id": "site-jeongseon",
+      "name": "정선 별마로천문대 인근",
+      "region": "강원 정선군",
+      "latitude": 37.3806,
+      "longitude": 128.6608,
+      "elevationM": 780,
+      "darknessScore": 88,
+      "bortleEstimate": 3,
+      "accessNote": "천문대 주차장까지 차량 진입 가능, 겨울철 결빙 주의",
+      "verifiedAt": "2026-08-23"
+    },
+    {
+      "id": "site-hwacheon",
+      "name": "화천 평화의 댐 인근",
+      "region": "강원 화천군",
+      "latitude": 38.1425,
+      "longitude": 127.6825,
+      "elevationM": 260,
+      "darknessScore": 85,
+      "bortleEstimate": 3,
+      "accessNote": "민통선 인접 구간 있음, 사전 통제 여부 확인 필요",
+      "verifiedAt": "2026-08-23"
+    },
+    {
+      "id": "site-muju",
+      "name": "무주 덕유산 인근",
+      "region": "전북 무주군",
+      "latitude": 35.8611,
+      "longitude": 127.7472,
+      "elevationM": 600,
+      "darknessScore": 87,
+      "bortleEstimate": 3,
+      "accessNote": "국립공원 구역 포함, 통제 시간대 있음",
+      "verifiedAt": "2026-08-23"
+    },
+    {
+      "id": "site-taebaek",
+      "name": "태백산 인근",
+      "region": "강원 태백시",
+      "latitude": 37.0956,
+      "longitude": 128.9153,
+      "elevationM": 900,
+      "darknessScore": 83,
+      "bortleEstimate": 3,
+      "accessNote": "고지대라 야간 기온이 낮음, 방한 장비 필요",
+      "verifiedAt": "2026-08-23"
+    },
+    {
+      "id": "site-inje",
+      "name": "인제 자작나무숲 인근",
+      "region": "강원 인제군",
+      "latitude": 38.0364,
+      "longitude": 128.2872,
+      "elevationM": 500,
+      "darknessScore": 84,
+      "bortleEstimate": 3,
+      "accessNote": "비포장 구간 있어 일부 차량 접근 제한",
+      "verifiedAt": "2026-08-23"
+    },
+    {
+      "id": "site-namhae",
+      "name": "남해 다랭이마을 인근",
+      "region": "경남 남해군",
+      "latitude": 34.7444,
+      "longitude": 127.9142,
+      "elevationM": 40,
+      "darknessScore": 74,
+      "bortleEstimate": 4,
+      "accessNote": "해안 도로 접근 용이, 인근 마을 조명 영향 있음",
+      "verifiedAt": "2026-08-23"
+    },
+    {
+      "id": "site-goheung",
+      "name": "고흥 나로우주센터 인근",
+      "region": "전남 고흥군",
+      "latitude": 34.4319,
+      "longitude": 127.535,
+      "elevationM": 60,
+      "darknessScore": 80,
+      "bortleEstimate": 3,
+      "accessNote": "우주센터 발사 일정 시 통제 구역 있음",
+      "verifiedAt": "2026-08-23"
+    },
+    {
+      "id": "site-seogwipo",
+      "name": "서귀포 산간 (한라산 남쪽)",
+      "region": "제주 서귀포시",
+      "latitude": 33.3167,
+      "longitude": 126.5292,
+      "elevationM": 350,
+      "darknessScore": 78,
+      "bortleEstimate": 4,
+      "accessNote": "관광지 인접 구간은 광공해 영향, 산간 안쪽이 더 어두움",
+      "verifiedAt": "2026-08-23"
+    },
+    {
+      "id": "site-yangpyeong",
+      "name": "양평 산간",
+      "region": "경기 양평군",
+      "latitude": 37.4419,
+      "longitude": 127.6425,
+      "elevationM": 250,
+      "darknessScore": 62,
+      "bortleEstimate": 5,
+      "accessNote": "수도권에서 접근성이 가장 좋으나 광공해 영향이 상대적으로 큼",
+      "verifiedAt": "2026-08-23"
+    }
+  ]
+}
