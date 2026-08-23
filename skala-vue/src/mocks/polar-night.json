@@ -1,0 +1,27 @@
+{
+  "lat": 78.2232,
+  "lon": 15.6469,
+  "timezone": "스발바르",
+  "timezone_offset": 3600,
+  "data": [
+    {
+      "dt": 1787458439,
+      "sunrise": null,
+      "sunset": null,
+      "temp": -14,
+      "feels_like": -20.5,
+      "pressure": 1001,
+      "humidity": 78,
+      "dew_point": 0,
+      "clouds": 30,
+      "uvi": 0,
+      "visibility": 9000,
+      "wind_speed": 5,
+      "wind_gust": 8,
+      "wind_deg": 40,
+      "rain": null,
+      "snow": { "1h": 0.4 },
+      "weather": [{ "id": 601, "main": "Snow", "description": "약한 눈", "icon": "13n" }]
+    }
+  ]
+}

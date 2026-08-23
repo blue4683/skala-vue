@@ -1,0 +1,27 @@
+{
+  "lat": 37.5665,
+  "lon": 126.978,
+  "timezone": "서울",
+  "timezone_offset": 32400,
+  "data": [
+    {
+      "dt": 1787458439,
+      "sunrise": 1787436839,
+      "sunset": 1787480039,
+      "temp": 28,
+      "feels_like": 29.5,
+      "pressure": 1012,
+      "humidity": 55,
+      "dew_point": 0,
+      "clouds": 5,
+      "uvi": 7,
+      "visibility": 10000,
+      "wind_speed": 2.5,
+      "wind_gust": 3.5,
+      "wind_deg": 200,
+      "rain": null,
+      "snow": null,
+      "weather": [{ "id": 800, "main": "Clear", "description": "맑음", "icon": "01d" }]
+    }
+  ]
+}

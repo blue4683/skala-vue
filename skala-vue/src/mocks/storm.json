@@ -1,0 +1,27 @@
+{
+  "lat": 35.1796,
+  "lon": 129.0756,
+  "timezone": "부산",
+  "timezone_offset": 32400,
+  "data": [
+    {
+      "dt": 1787458439,
+      "sunrise": 1787436839,
+      "sunset": 1787480039,
+      "temp": 24,
+      "feels_like": 25.1,
+      "pressure": 992,
+      "humidity": 90,
+      "dew_point": 0,
+      "clouds": 100,
+      "uvi": 0,
+      "visibility": 3500,
+      "wind_speed": 17,
+      "wind_gust": 26,
+      "wind_deg": 300,
+      "rain": { "1h": 12.5 },
+      "snow": null,
+      "weather": [{ "id": 211, "main": "Thunderstorm", "description": "천둥번개", "icon": "11d" }]
+    }
+  ]
+}
