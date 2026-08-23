@@ -187,3 +187,16 @@ components/*.vue        API 필드명(`main.temp`, `sys.sunset`)을 몰라도 �
 - 일부러 `unused` 변수와 `v-for` key 누락 코드를 만들어 `npx eslint`로 실제로 잡히는지 확인(`no-unused-vars`, `vue/require-v-for-key`) -> 확인 후 파일은 삭제
 
 - `npm run format` 실행 결과는 로직 변경 없이 줄바꿈/들여쓰기 같은 포맷팅만 반영됨(가이드 코드 스니펫을 그대로 옮기며 Prettier를 거치지 않았던 파일들이 정리됨)
+
+## 단위 테스트 정리
+
+- 테스트 대상 선택 기준: **"틀렸을 때 눈으로 알아차릴 수 있는가?"** -> `utils/` 순수 함수는 틀려도 조용히 틀리므로 테스트 필수. 컴포넌트는 화면이 바로 이상해 보이므로 테스트하지 않음(누락이 아니라 선택)
+    - 특히 `toGrid`가 1칸만 틀려도 화면은 멀쩡히 뜨고 "5km 옆 동네의 예보"를 보여줄 뿐이라 테스트 없이는 절대 못 알아차림
+
+- 빠져 있던 두 파일을 채움
+    - `baseTime.test.js` -> `latestBase(now = new Date())`처럼 시각을 인자로 받게 만들어 뒀던 게 여기서 보상받음. 발표 직후/10분 미만/자정 분기/자정 분기의 경계(02:15) 4케이스
+    - `segmentState.test.js` -> "특보가 있으면 규칙 통과 여부와 무관하게 blocked", "nodata는 특보보다도 우선"이라는 **설계 결정**을 테스트로 고정 -> 나중에 누군가 `if` 순서를 바꾸면 이 테스트가 잡음(테스트가 설계 문서 역할)
+
+- 테스트가 실제로 검증하는지 뮤테이션으로 확인: `tideCurve.js`의 `Math.cos`를 `Math.sin`으로 바꿔보니 `tideCurve.test.js` 3케이스가 즉시 실패함(확인 후 원복) -> 실패하지 않았다면 그 테스트는 아무것도 검증하지 않는 것
+
+- 최종 `npm run test:unit`: 5개 파일(`tideCurve`/`conditionBands`/`grid`/`baseTime`/`segmentState`) 총 27케이스 전부 통과. `grid.test.js`가 1케이스뿐인 건 이상한 게 아니라, 그 함수가 분기 없는 순수 수식이라 알려진 정답 한 쌍이면 충분하기 때문(케이스 수는 로직의 분기 수를 따라감)
