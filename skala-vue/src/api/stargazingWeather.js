@@ -9,24 +9,103 @@ const HOURLY = [
   'visibility',
   'wind_speed_10m',
 ]
+const CACHE_KEY = 'stargazing-weather-v1'
+const CACHE_TTL_MS = 30 * 60 * 1000
+let pendingRequest = null
+
+function cacheSignature(sites) {
+  return sites
+    .map((site) => `${site.id}:${site.latitude}:${site.longitude}:${site.elevationM ?? 'nan'}`)
+    .join('|')
+}
+
+function getStorage() {
+  try {
+    return globalThis.localStorage ?? null
+  } catch {
+    return null
+  }
+}
+
+function readCache(sites) {
+  try {
+    const cached = JSON.parse(getStorage()?.getItem(CACHE_KEY) ?? 'null')
+    if (
+      !cached ||
+      cached.signature !== cacheSignature(sites) ||
+      !Number.isFinite(cached.fetchedAt) ||
+      !cached.forecasts ||
+      typeof cached.forecasts !== 'object'
+    ) {
+      return null
+    }
+    return cached
+  } catch {
+    return null
+  }
+}
+
+function writeCache(cache) {
+  try {
+    getStorage()?.setItem(CACHE_KEY, JSON.stringify(cache))
+  } catch {
+    // 저장 공간이 없거나 비활성화돼도 실시간 조회 결과는 그대로 사용한다.
+  }
+}
+
+function cachedResult(cache, source) {
+  return {
+    forecasts: cache.forecasts,
+    fetchedAt: cache.fetchedAt,
+    source,
+  }
+}
 
 export async function fetchStargazingWeather(sites) {
-  const response = await axios.get(BASE, {
-    params: {
-      latitude: sites.map((site) => site.latitude).join(','),
-      longitude: sites.map((site) => site.longitude).join(','),
-      elevation: sites.map((site) => site.elevationM ?? 'nan').join(','),
-      hourly: HOURLY.join(','),
-      wind_speed_unit: 'ms',
-      timeformat: 'unixtime',
-      timezone: 'GMT',
-      past_days: 1,
-      forecast_days: 8,
-    },
-  })
+  const cached = readCache(sites)
+  if (cached && Date.now() - cached.fetchedAt < CACHE_TTL_MS) {
+    return cachedResult(cached, 'cache')
+  }
+  if (pendingRequest) return pendingRequest
 
-  const forecasts = Array.isArray(response.data) ? response.data : [response.data]
-  return Object.fromEntries(sites.map((site, index) => [site.id, forecasts[index]]))
+  pendingRequest = axios
+    .get(BASE, {
+      params: {
+        latitude: sites.map((site) => site.latitude).join(','),
+        longitude: sites.map((site) => site.longitude).join(','),
+        elevation: sites.map((site) => site.elevationM ?? 'nan').join(','),
+        hourly: HOURLY.join(','),
+        wind_speed_unit: 'ms',
+        timeformat: 'unixtime',
+        timezone: 'GMT',
+        past_days: 1,
+        forecast_days: 8,
+      },
+    })
+    .then((response) => {
+      const values = Array.isArray(response.data) ? response.data : [response.data]
+      const cache = {
+        signature: cacheSignature(sites),
+        fetchedAt: Date.now(),
+        forecasts: Object.fromEntries(sites.map((site, index) => [site.id, values[index]])),
+      }
+      writeCache(cache)
+      return cachedResult(cache, 'live')
+    })
+    .catch((error) => {
+      if (error?.response?.status === 429) {
+        if (cached) return cachedResult(cached, 'stale-cache')
+        throw new Error('Open-Meteo 요청 한도를 초과했고 저장된 예보가 없습니다.', {
+          cause: error,
+        })
+      }
+      throw error
+    })
+    .finally(() => {
+      pendingRequest = null
+    })
+
+  return pendingRequest
 }
 
 function closestHourlyIndex(forecast, date) {

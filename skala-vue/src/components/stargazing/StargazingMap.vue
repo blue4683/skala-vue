@@ -1,7 +1,16 @@
 <script setup>
 import { ref, onMounted, onUnmounted, watch } from 'vue'
-import { LngLatBounds, Map as MapLibreMap, Marker, NavigationControl } from 'maplibre-gl'
+import {
+  LngLatBounds,
+  Map as MapLibreMap,
+  Marker,
+  NavigationControl,
+  setWorkerUrl,
+} from 'maplibre-gl'
+import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url'
 import 'maplibre-gl/dist/maplibre-gl.css'
+
+setWorkerUrl(maplibreWorkerUrl)
 
 const props = defineProps({
   sites: { type: Array, required: true }, // [{id, name, latitude, longitude}]

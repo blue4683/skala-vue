@@ -11,7 +11,8 @@ const {
   sites,
   loading,
   error,
-  updatedAt,
+  weatherUpdatedAt,
+  weatherSource,
   loadLiveData,
   evaluateAt,
   buildTonightSlots,
@@ -49,6 +50,25 @@ const hourlyScores = computed(() => {
 const selectedBestWindow = computed(() => {
   if (!hourlyScores.value.length) return null
   return findBestWindow(hourlyScores.value)
+})
+
+const weatherStatusLabel = computed(() => {
+  if (!weatherUpdatedAt.value) return null
+  const collectedAt = weatherUpdatedAt.value.toLocaleString('ko-KR', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+
+  if (weatherSource.value === 'stale-cache') {
+    return `Open-Meteo 요청 제한으로 저장된 예보를 표시합니다 · ${collectedAt} 수집`
+  }
+  if (weatherSource.value === 'cache') {
+    return `저장된 Open-Meteo 예보 · ${collectedAt} 수집`
+  }
+  return `Open-Meteo 예보 · ${collectedAt} 수집`
 })
 
 function selectSite(id) {
@@ -99,10 +119,14 @@ onMounted(async () => {
       <p class="layer-basis">{{ layerBasis }}</p>
     </div>
 
-    <p class="live-status" role="status">
+    <p class="live-status" role="status" aria-live="polite">
       <span v-if="loading">Open-Meteo·VIIRS 실시간 데이터를 불러오는 중…</span>
-      <span v-else-if="error" class="is-error">{{ error }}</span>
-      <span v-else-if="updatedAt">실데이터 갱신 {{ updatedAt.toLocaleTimeString('ko-KR') }}</span>
+      <template v-else>
+        <span v-if="error" class="is-error">{{ error }}</span>
+        <span v-if="weatherStatusLabel" :class="{ 'is-warning': weatherSource === 'stale-cache' }">
+          {{ weatherStatusLabel }}
+        </span>
+      </template>
     </p>
 
     <div class="map-layout">
@@ -211,6 +235,10 @@ onMounted(async () => {
   font-size: 0.78rem;
 }
 
+.live-status span + span::before {
+  content: ' · ';
+}
+
 .layer-controls {
   position: relative;
   z-index: 1;
@@ -227,6 +255,10 @@ onMounted(async () => {
 }
 
 .live-status .is-error {
+  color: var(--sg-warning);
+}
+
+.live-status .is-warning {
   color: var(--sg-warning);
 }
 

@@ -14,7 +14,8 @@ export function useStargazingSites() {
   const lightPollution = ref({})
   const loading = ref(false)
   const error = ref(null)
-  const updatedAt = ref(null)
+  const weatherUpdatedAt = ref(null)
+  const weatherSource = ref(null)
 
   const sites = computed(() =>
     stargazingCitiesData.cities.map((city) => {
@@ -44,7 +45,11 @@ export function useStargazingSites() {
       Promise.allSettled(stargazingCitiesData.cities.map((city) => fetchLightPollution(city))),
     ])
 
-    if (weatherResult.status === 'fulfilled') forecasts.value = weatherResult.value
+    if (weatherResult.status === 'fulfilled') {
+      forecasts.value = weatherResult.value.forecasts
+      weatherUpdatedAt.value = new Date(weatherResult.value.fetchedAt)
+      weatherSource.value = weatherResult.value.source
+    }
 
     const nextLight = {}
     lightResults.forEach((result, index) => {
@@ -55,11 +60,16 @@ export function useStargazingSites() {
     lightPollution.value = nextLight
 
     const failures = [
-      weatherResult.status === 'rejected' ? '날씨' : null,
-      lightResults.some((result) => result.status === 'rejected') ? '광공해 일부' : null,
+      weatherResult.status === 'rejected'
+        ? weatherResult.reason instanceof Error
+          ? weatherResult.reason.message
+          : '날씨 데이터를 불러오지 못했습니다.'
+        : null,
+      lightResults.some((result) => result.status === 'rejected')
+        ? '광공해 일부 데이터를 불러오지 못했습니다.'
+        : null,
     ].filter(Boolean)
-    error.value = failures.length ? `${failures.join('·')} 데이터를 불러오지 못했습니다.` : null
-    updatedAt.value = new Date()
+    error.value = failures.length ? failures.join(' ') : null
     loading.value = false
   }
 
@@ -144,7 +154,8 @@ export function useStargazingSites() {
     sites,
     loading,
     error,
-    updatedAt,
+    weatherUpdatedAt,
+    weatherSource,
     loadLiveData,
     weatherFor,
     evaluateAt,
