@@ -110,6 +110,9 @@ loadTideMock(TIDE_MOCKS[selectedStation.value.obsCode])
 
 <template>
   <div class="weather-view">
+    <div class="starfield" aria-hidden="true" />
+    <div class="nebula" aria-hidden="true" />
+
     <el-card class="scene-controls" shadow="never">
       <p class="control-label">미리보기 날씨</p>
       <el-radio-group class="mock-picker" :model-value="activeKey" aria-label="목 데이터 선택">
@@ -178,4 +181,172 @@ loadTideMock(TIDE_MOCKS[selectedStation.value.obsCode])
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.weather-view {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px;
+  border-radius: 20px;
+  color-scheme: dark;
+}
+
+.starfield {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-color: var(--sg-bg);
+  background-image:
+    radial-gradient(1.4px 1.4px at 20px 30px, var(--sg-star), transparent 100%),
+    radial-gradient(1px 1px at 90px 80px, var(--sg-star), transparent 100%),
+    radial-gradient(1.6px 1.6px at 150px 40px, var(--sg-star), transparent 100%),
+    radial-gradient(1px 1px at 60px 120px, var(--sg-star), transparent 100%),
+    radial-gradient(1.2px 1.2px at 180px 150px, var(--sg-star), transparent 100%),
+    radial-gradient(1px 1px at 10px 170px, var(--sg-star), transparent 100%);
+  background-size: 200px 200px;
+  background-repeat: repeat;
+}
+
+.nebula {
+  position: absolute;
+  z-index: 0;
+  top: -220px;
+  right: -120px;
+  width: 520px;
+  height: 520px;
+  border-radius: 50%;
+  filter: blur(70px);
+  pointer-events: none;
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.28), transparent 70%);
+}
+
+.weather-view > :deep(.el-card),
+.weather-view > .stage-wrap {
+  position: relative;
+  z-index: 1;
+}
+
+.weather-view :deep(.el-card) {
+  background: var(--sg-bg-elevated);
+  border-color: var(--sg-border-dark);
+  color: var(--sg-text-inverse-700);
+}
+
+.weather-view :deep(.el-card__body) {
+  color: var(--sg-text-inverse-700);
+}
+
+.control-label,
+.station-label {
+  color: var(--sg-text-inverse-900);
+  font-weight: 600;
+}
+
+.mock-picker,
+.weather-view :deep(.station-picker) {
+  --el-radio-button-checked-bg-color: var(--sg-brand);
+  --el-radio-button-checked-border-color: var(--sg-brand);
+  --el-radio-button-checked-text-color: #fff;
+}
+
+.weather-view :deep(.el-radio-button__inner) {
+  background: var(--sg-bg-elevated-2);
+  border-color: var(--sg-border-dark);
+  color: var(--sg-text-inverse-700);
+}
+
+.weather-view :deep(.el-divider) {
+  border-color: var(--sg-border-dark);
+}
+
+.live-fetch {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.live-fetch label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.85rem;
+  color: var(--sg-text-inverse-700);
+}
+
+.error-box {
+  position: relative;
+  z-index: 1;
+}
+
+.stage-wrap {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid var(--sg-border-dark);
+}
+
+.skeleton {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    var(--sg-bg-elevated) 30%,
+    var(--sg-bg-elevated-2) 50%,
+    var(--sg-bg-elevated) 70%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-sheen 1.4s ease-in-out infinite;
+}
+
+@keyframes skeleton-sheen {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+.station-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.weather-view :deep(.sun-arc-scrubber) {
+  position: relative;
+  z-index: 1;
+  padding: 4px 4px 0;
+}
+
+.weather-view :deep(.sun-arc-scrubber .scrub-info span),
+.weather-view :deep(.sun-arc-scrubber .polar-note) {
+  color: var(--sg-text-inverse-700);
+}
+
+.weather-view :deep(.el-slider__runway) {
+  background-color: var(--sg-bg-elevated-2);
+}
+
+.weather-view :deep(.el-slider__bar) {
+  background-color: var(--sg-brand);
+}
+
+.weather-view :deep(.el-slider__button) {
+  border-color: var(--sg-brand);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
+}
+</style>

@@ -47,13 +47,13 @@ const groups = computed(() =>
   font-size: 0.85rem;
 }
 .state-clear {
-  color: #0d9488;
+  color: var(--sg-accent);
 }
 .state-visible {
-  color: #b45309;
+  color: var(--sg-warning);
 }
 .state-difficult {
-  color: #94a3b8;
+  color: var(--sg-ink-500);
 }
 .constellation-group ul {
   list-style: none;
@@ -68,6 +68,6 @@ const groups = computed(() =>
   justify-content: space-between;
   gap: 8px;
   font-size: 0.82rem;
-  color: #35506b;
+  color: var(--sg-ink-700);
 }
 </style>

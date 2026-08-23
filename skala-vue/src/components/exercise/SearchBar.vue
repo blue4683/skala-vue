@@ -23,4 +23,31 @@ const emit = defineEmits(['update-query'])
   </p>
 </template>
 
-<style scoped></style>
+<style scoped>
+:deep(.el-input__wrapper) {
+  background-color: var(--sg-bg-elevated-2);
+  box-shadow: 0 0 0 1px var(--sg-border-dark) inset;
+}
+
+:deep(.el-input__wrapper.is-focus) {
+  box-shadow: 0 0 0 1px var(--sg-brand) inset;
+}
+
+:deep(.el-input__inner) {
+  color: var(--sg-text-inverse-900);
+}
+
+:deep(.el-input__inner::placeholder) {
+  color: var(--sg-text-inverse-500);
+}
+
+:deep(.el-input__prefix) {
+  color: var(--sg-text-inverse-500);
+}
+
+.city-search-result {
+  margin: 10px 0 0;
+  font-size: 0.82rem;
+  color: var(--sg-text-inverse-500);
+}
+</style>

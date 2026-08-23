@@ -36,11 +36,11 @@ const provincePaths = computed(() => {
   return geojson.value.features.map((f) => pathGen.value(f))
 })
 
-// 적록 대비를 피한 4단계 색상
+// 적록 대비를 피한 4단계 색상 — 어두운 지도 위에서 도드라지도록 채도를 높임
 const STATE_COLOR = {
-  open: '#0d9488', // 청록
-  caution: '#b45309', // 황토
-  blocked: '#a21caf', // 자주
+  open: '#2dd4bf', // 청록
+  caution: '#f59e0b', // 황토
+  blocked: '#e879f9', // 자주
   nodata: '#94a3b8', // 회색
 }
 
@@ -83,13 +83,7 @@ const points = computed(() => {
         @mouseenter="emit('hover', p)"
         @mouseleave="emit('hover', null)"
       >
-        <circle
-          :cx="p.x"
-          :cy="p.y"
-          r="7"
-          :fill="STATE_COLOR[p.level]"
-          :stroke="STATE_COLOR[p.level]"
-        />
+        <circle :cx="p.x" :cy="p.y" r="7" :fill="STATE_COLOR[p.level]" stroke="rgba(255, 255, 255, 0.85)" />
         <title>
           {{ p.name }} — {{ p.level }}{{ p.reason.length ? `(${p.reason.join(', ')})` : '' }}
         </title>
@@ -105,25 +99,44 @@ const points = computed(() => {
 </template>
 
 <style scoped>
+.korea-map {
+  padding: 16px;
+}
 .province {
-  fill: #eef4fa;
-  stroke: #cbd8e6;
+  fill: var(--sg-bg-elevated-2);
+  stroke: var(--sg-border-dark);
   stroke-width: 1;
 }
 .segment circle {
   stroke-width: 2;
   cursor: pointer;
+  filter: drop-shadow(0 0 6px currentColor);
+}
+.segment.is-open circle {
+  color: rgba(45, 212, 191, 0.7);
+}
+.segment.is-caution circle {
+  color: rgba(245, 158, 11, 0.65);
+}
+.segment.is-blocked circle {
+  color: rgba(232, 121, 249, 0.65);
 }
 /* nodata는 색뿐 아니라 점선 테두리로도 구분한다 */
 .segment.is-nodata circle {
-  fill: #e2e8f0;
+  fill: var(--sg-bg-elevated-2);
+  stroke: rgba(148, 163, 184, 0.7);
   stroke-dasharray: 3 2;
+  filter: none;
 }
 .legend {
   list-style: none;
   display: flex;
+  flex-wrap: wrap;
   gap: 1rem;
-  padding: 0;
+  padding: 12px 16px;
+  margin: 0;
+  color: var(--sg-text-inverse-700);
+  font-size: 0.85rem;
 }
 .legend i {
   display: inline-block;
@@ -133,7 +146,11 @@ const points = computed(() => {
   margin-right: 4px;
 }
 .legend i.nodata {
-  background: #e2e8f0;
+  background: var(--sg-bg-elevated-2);
   border: 1px dashed #94a3b8;
+}
+.hint {
+  padding: 16px;
+  color: var(--sg-text-inverse-700);
 }
 </style>

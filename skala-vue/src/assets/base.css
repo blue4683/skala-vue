@@ -50,6 +50,48 @@
   }
 }
 
+/* app-wide night-sky/space palette. Two surface families:
+   1) light glass card tokens (--sg-ink-*, --sg-surface, --sg-accent/-soft, --sg-warning/-soft,
+      --sg-neutral/-soft) — used on the light floating detail panels, contrast-checked ≥4.5:1
+      against #fff. These carry STATUS meaning (good/caution/unavailable) and are unchanged
+      by the space redesign.
+   2) dark space surface tokens (--sg-bg*, --sg-text-inverse-*, --sg-brand*) — the page canvas,
+      chrome, and the one INTERACTIVE accent (selection/CTA), distinct from status colors. */
+:root {
+  --sg-ink-900: #183a5e;
+  --sg-ink-700: #35506b;
+  --sg-ink-500: #56728c;
+  --sg-border: #d8e8f5;
+  --sg-surface: #ffffff;
+  --sg-glass: rgba(255, 255, 255, 0.94);
+
+  --sg-accent: #0f766e;
+  --sg-accent-soft: #ccfbf1;
+  --sg-accent-glow: rgba(45, 212, 191, 0.65);
+  --sg-warning: #b45309;
+  --sg-warning-soft: #fef3c7;
+  --sg-warning-glow: rgba(251, 146, 60, 0.6);
+  --sg-neutral: #475569;
+  --sg-neutral-soft: #e2e8f0;
+  --sg-neutral-glow: rgba(148, 163, 184, 0.5);
+  --sg-data: #7c3aed;
+
+  --sg-bg: #0b1220;
+  --sg-bg-elevated: #131c30;
+  --sg-bg-elevated-2: #1b2645;
+  --sg-border-dark: rgba(148, 163, 184, 0.18);
+  --sg-star: rgba(255, 255, 255, 0.85);
+
+  --sg-text-inverse-900: #f8fafc;
+  --sg-text-inverse-700: #b9c4d6;
+  --sg-text-inverse-500: #8291ab;
+
+  --sg-brand: #2563eb;
+  --sg-brand-text: #1d4ed8;
+  --sg-brand-soft: #dbeafe;
+  --sg-brand-glow: rgba(37, 99, 235, 0.55);
+}
+
 *,
 *::before,
 *::after {

@@ -31,7 +31,6 @@ function tickLabel(ms) {
 <template>
   <div class="time-slider">
     <div class="slider-header">
-      <p class="eyebrow">TIME</p>
       <strong>{{ currentLabel }}</strong>
     </div>
 
@@ -54,14 +53,19 @@ function tickLabel(ms) {
 </template>
 
 <style scoped>
+.slider-header {
+  margin-bottom: 6px;
+  color: var(--sg-text-inverse-900);
+  font-weight: 700;
+}
 .track {
   width: 100%;
-  accent-color: #0d9488;
+  accent-color: var(--sg-brand);
 }
 .ticks {
   display: flex;
   justify-content: space-between;
   font-size: 0.8rem;
-  color: var(--color-text-mute, #64748b);
+  color: var(--sg-text-inverse-500);
 }
 </style>

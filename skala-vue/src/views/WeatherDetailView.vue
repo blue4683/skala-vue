@@ -21,7 +21,9 @@ onMounted(() => {
 
 <template>
   <div class="detail-view">
-    <RouterLink to="/" class="back-link"
+    <div class="starfield" aria-hidden="true" />
+
+    <RouterLink to="/dashboard" class="back-link"
       ><el-icon><ArrowLeft /></el-icon> 대시보드로 돌아가기</RouterLink
     >
 
@@ -61,10 +63,155 @@ onMounted(() => {
       :sub-title="`‘${route.params.cityId}’에 해당하는 도시 정보가 없습니다.`"
     >
       <template #extra
-        ><el-button type="primary" @click="$router.push('/')">대시보드로 이동</el-button></template
+        ><el-button type="primary" @click="$router.push('/dashboard')">대시보드로 이동</el-button></template
       >
     </el-result>
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.detail-view {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 24px;
+  border-radius: 20px;
+  color-scheme: dark;
+  min-height: 480px;
+}
+
+.starfield {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-color: var(--sg-bg);
+  background-image:
+    radial-gradient(1.4px 1.4px at 20px 30px, var(--sg-star), transparent 100%),
+    radial-gradient(1px 1px at 90px 80px, var(--sg-star), transparent 100%),
+    radial-gradient(1.6px 1.6px at 150px 40px, var(--sg-star), transparent 100%),
+    radial-gradient(1px 1px at 60px 120px, var(--sg-star), transparent 100%),
+    radial-gradient(1.2px 1.2px at 180px 150px, var(--sg-star), transparent 100%),
+    radial-gradient(1px 1px at 10px 170px, var(--sg-star), transparent 100%);
+  background-size: 200px 200px;
+  background-repeat: repeat;
+}
+
+.back-link {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  color: var(--sg-text-inverse-700);
+  font-size: 0.85rem;
+  text-decoration: none;
+}
+
+.back-link:hover {
+  color: var(--sg-text-inverse-900);
+}
+
+.detail-hero {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.weather-symbol {
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--sg-bg-elevated);
+  border: 1px solid var(--sg-border-dark);
+  font-size: 2rem;
+  color: #fbbf24;
+}
+
+.detail-hero p {
+  margin: 0 0 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--sg-text-inverse-500);
+  font-size: 0.85rem;
+}
+
+.detail-hero h1 {
+  margin: 0 0 4px;
+  font-size: clamp(1.5rem, 1rem + 2.5vw, 2.25rem);
+  font-weight: 800;
+  color: var(--sg-text-inverse-900);
+}
+
+.detail-hero span {
+  color: var(--sg-text-inverse-500);
+  font-size: 0.85rem;
+}
+
+.metrics-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 14px;
+}
+
+.metrics-grid :deep(.el-card) {
+  background: var(--sg-bg-elevated);
+  border-color: var(--sg-border-dark);
+  border-radius: 14px;
+}
+
+.metrics-grid :deep(.el-card__body) {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.metrics-grid .el-icon {
+  color: var(--sg-brand);
+  font-size: 1.2rem;
+}
+
+.metrics-grid span {
+  color: var(--sg-text-inverse-500);
+  font-size: 0.82rem;
+}
+
+.metrics-grid b {
+  font-size: 1.6rem;
+  color: var(--sg-text-inverse-900);
+}
+
+.metrics-grid small {
+  font-size: 1rem;
+  color: var(--sg-text-inverse-500);
+}
+
+.city-code {
+  font-size: 1.1rem !important;
+  font-family: monospace;
+}
+
+:deep(.el-result) {
+  position: relative;
+  z-index: 1;
+}
+
+:deep(.el-result__title p) {
+  color: var(--sg-text-inverse-900);
+}
+
+:deep(.el-result__subtitle p) {
+  color: var(--sg-text-inverse-700);
+}
+</style>

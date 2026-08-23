@@ -1,6 +1,5 @@
 <script setup>
 import { ref, computed } from 'vue'
-import { Location } from '@element-plus/icons-vue'
 import { useStargazingSites } from '@/composables/useStargazingSites'
 import { useObservationScore } from '@/composables/useObservationScore'
 import { findBestWindow } from '@/utils/observationScore'
@@ -21,13 +20,17 @@ const siteScores = computed(() => scoresAt(selectedTime.value))
 const selectedSite = computed(() => sites.value.find((s) => s.id === selectedSiteId.value) ?? null)
 const selectedEvaluation = useObservationScore(selectedSite, selectedTime)
 
-const selectedBestWindow = computed(() => {
-  if (!selectedSite.value || !timeSlots.length) return null
-  const hourly = timeSlots.map((t) => ({
+const hourlyScores = computed(() => {
+  if (!selectedSite.value || !timeSlots.length) return []
+  return timeSlots.map((t) => ({
     time: t.getTime(),
     score: scoresAt(t).find((s) => s.id === selectedSite.value.id)?.score ?? null,
   }))
-  return findBestWindow(hourly)
+})
+
+const selectedBestWindow = computed(() => {
+  if (!hourlyScores.value.length) return null
+  return findBestWindow(hourlyScores.value)
 })
 
 function selectSite(id) {
@@ -36,11 +39,28 @@ function selectSite(id) {
 </script>
 
 <template>
+  <!--
+    THESIS: night-sky data reads as astronomy, not a dashboard — dark navy canvas, starfield,
+    and warm nebula glow carry the map; a light frosted-glass panel is the one bright surface,
+    reserved for the dense numbers a user actually reads.
+    OWN-WORLD: --sg-bg/-elevated navy surfaces, starfield + nebula backdrop, --sg-brand (#2563eb)
+    as the sole interactive accent, --sg-glass frosted card for data, status colors (teal/amber/
+    slate) unchanged from the light-theme system, reused as glow rings on the dark map.
+    STORY: visitor picks a candidate site and a tonight time slot; the map and glass panel
+    answer "is it dark/clear/moonlit enough, and what will I actually see" with traceable
+    per-factor bars, never a bare composite score.
+    FIRST VIEWPORT: dark hero (title + one line), floating segmented layer toggle, map+detail
+    two-column below, dark hour-strip at the bottom.
+    FORM: pinned by user-supplied reference image (src/assets/image.png); no direction tournament run.
+    FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review,
+    the verdict, DESIGN.md, and every shipping raster carrying its provenance.
+  -->
   <div class="stargazing-view">
+    <div class="starfield" aria-hidden="true" />
+    <div class="nebula nebula-a" aria-hidden="true" />
+    <div class="nebula nebula-b" aria-hidden="true" />
+
     <section class="view-intro">
-      <p class="eyebrow">
-        <el-icon><Location /></el-icon> STARGAZING MAP
-      </p>
       <h1>오늘 밤,<br /><em>어디서 별을 볼까</em></h1>
       <p class="intro-copy">
         광공해·구름·달빛·시정을 규칙으로 판정해 후보지 점수와 관측 가능 별자리를 보여줍니다.
@@ -68,54 +88,168 @@ function selectSite(id) {
       />
     </div>
 
-    <ObservationTimeRibbon v-if="timeSlots.length" v-model="selectedTime" :time-slots="timeSlots" />
-    <p v-else class="no-night-note">
-      이 위치·날짜 기준으로는 오늘 밤 항해박명 구간을 계산할 수 없어요(예: 백야 지역).
-    </p>
+    <section class="time-bar">
+      <div class="time-bar-label">
+        <p class="time-bar-title">오늘 밤 관측 창</p>
+        <p class="time-bar-hint">시간을 누르면 지도와 별자리가 갱신됩니다.</p>
+      </div>
+      <ObservationTimeRibbon
+        v-if="timeSlots.length"
+        v-model="selectedTime"
+        :time-slots="timeSlots"
+        :hourly-scores="hourlyScores"
+      />
+      <p v-else class="no-night-note">
+        이 위치·날짜 기준으로는 오늘 밤 항해박명 구간을 계산할 수 없어요(예: 백야 지역).
+      </p>
+    </section>
   </div>
 </template>
 
 <style scoped>
 .stargazing-view {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   gap: 18px;
+  padding: 24px;
+  border-radius: 20px;
+  color-scheme: dark;
 }
 
-.eyebrow {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin: 0 0 6px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: #5590bd;
+/* z-index:0 (not negative): a negative z-index would paint behind this element's own
+   background/border layer rather than in front of it, hiding the whole backdrop. */
+.starfield {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-color: var(--sg-bg);
+  background-image:
+    radial-gradient(1.4px 1.4px at 20px 30px, var(--sg-star), transparent 100%),
+    radial-gradient(1px 1px at 90px 80px, var(--sg-star), transparent 100%),
+    radial-gradient(1.6px 1.6px at 150px 40px, var(--sg-star), transparent 100%),
+    radial-gradient(1px 1px at 60px 120px, var(--sg-star), transparent 100%),
+    radial-gradient(1.2px 1.2px at 180px 150px, var(--sg-star), transparent 100%),
+    radial-gradient(1px 1px at 10px 170px, var(--sg-star), transparent 100%);
+  background-size: 200px 200px;
+  background-repeat: repeat;
+}
+
+.nebula {
+  position: absolute;
+  z-index: 0;
+  width: 560px;
+  height: 560px;
+  border-radius: 50%;
+  filter: blur(70px);
+  pointer-events: none;
+}
+
+.nebula-a {
+  top: -220px;
+  left: -80px;
+  background: radial-gradient(circle, rgba(217, 119, 6, 0.35), transparent 70%);
+}
+
+.nebula-b {
+  bottom: -260px;
+  right: -120px;
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.3), transparent 70%);
+}
+
+.view-intro {
+  position: relative;
+  z-index: 1;
 }
 
 .view-intro h1 {
-  margin: 0 0 6px;
+  margin: 0 0 10px;
+  font-size: clamp(1.75rem, 1.1rem + 3vw, 2.75rem);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: var(--sg-text-inverse-900);
+}
+
+.view-intro h1 em {
+  font-style: normal;
+  color: var(--sg-brand);
 }
 
 .intro-copy {
   margin: 0;
-  color: #55738d;
+  max-width: 52ch;
+  color: var(--sg-text-inverse-700);
 }
 
 .map-layout {
+  position: relative;
+  z-index: 1;
   display: grid;
   grid-template-columns: 1fr 320px;
   gap: 16px;
-  align-items: start;
+  align-items: stretch;
 }
 
 .map-pane {
-  height: 520px;
+  min-height: 520px;
+}
+
+.time-bar {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  border-radius: 16px;
+  background: var(--sg-bg-elevated);
+  border: 1px solid var(--sg-border-dark);
+}
+
+.time-bar-label {
+  min-width: 160px;
+}
+
+.time-bar-title {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--sg-text-inverse-900);
+}
+
+.time-bar-hint {
+  margin: 2px 0 0;
+  font-size: 0.72rem;
+  color: var(--sg-text-inverse-500);
+}
+
+.time-bar :deep(.time-ribbon) {
+  flex: 1;
+}
+
+.no-night-note {
+  margin: 0;
+  color: var(--sg-text-inverse-700);
 }
 
 @media (max-width: 860px) {
   .map-layout {
     grid-template-columns: 1fr;
+  }
+
+  .map-pane {
+    height: 360px;
+  }
+}
+
+@media (max-width: 640px) {
+  .stargazing-view {
+    padding: 16px;
   }
 }
 </style>

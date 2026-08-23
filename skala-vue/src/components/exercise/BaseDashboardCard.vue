@@ -16,4 +16,20 @@ defineProps({
   </el-card>
 </template>
 
-<style scoped></style>
+<style scoped>
+.dashboard-card {
+  --el-card-bg-color: var(--sg-bg-elevated);
+  --el-card-border-color: var(--sg-border-dark);
+  border-radius: 16px;
+}
+
+.dashboard-card :deep(.el-card__header) {
+  border-bottom-color: var(--sg-border-dark);
+}
+
+.dashboard-card :deep(h3) {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--sg-text-inverse-900);
+}
+</style>

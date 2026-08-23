@@ -24,7 +24,24 @@ const LAYERS = [
 
 <style scoped>
 .layer-toggle {
-  display: flex;
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
   flex-wrap: wrap;
+  width: fit-content;
+  padding: 4px;
+  border-radius: 999px;
+  background: var(--sg-surface);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  --el-radio-button-checked-bg-color: var(--sg-brand);
+  --el-radio-button-checked-border-color: var(--sg-brand);
+  --el-radio-button-checked-text-color: #fff;
+}
+
+.layer-toggle :deep(.el-radio-button__inner) {
+  border: none;
+  background: transparent;
+  color: var(--sg-ink-700);
+  box-shadow: none;
 }
 </style>

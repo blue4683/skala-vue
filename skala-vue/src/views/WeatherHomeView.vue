@@ -2,7 +2,7 @@
 import { computed, watch, watchEffect, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { Location, Sunny, Warning } from '@element-plus/icons-vue'
+import { Sunny, Warning } from '@element-plus/icons-vue'
 import BaseDashboardCard from '@/components/exercise/BaseDashboardCard.vue'
 import SearchBar from '@/components/exercise/SearchBar.vue'
 import WeatherCard from '@/components/exercise/WeatherCard.vue'
@@ -71,13 +71,15 @@ watchEffect(() => {
 
 <template>
   <div class="weather-dashboard">
+    <div class="starfield" aria-hidden="true" />
+    <div class="nebula" aria-hidden="true" />
+
     <section class="dashboard-hero">
       <div>
-        <p class="eyebrow">
-          <el-icon><Location /></el-icon> 대한민국 주요 도시
-        </p>
         <h1>오늘의 날씨,<br /><em>가볍게 확인하세요.</em></h1>
-        <p class="hero-copy">기온과 습도, 불쾌지수를 한 화면에서 비교해 보세요.</p>
+        <p class="hero-copy">
+          대한민국 주요 도시의 기온과 습도, 불쾌지수를 한 화면에서 비교해 보세요.
+        </p>
       </div>
       <div class="hero-weather" aria-hidden="true">
         <el-icon><Sunny /></el-icon><span>28º</span>
@@ -117,4 +119,136 @@ watchEffect(() => {
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.weather-dashboard {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 24px;
+  border-radius: 20px;
+  color-scheme: dark;
+}
+
+.starfield {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-color: var(--sg-bg);
+  background-image:
+    radial-gradient(1.4px 1.4px at 20px 30px, var(--sg-star), transparent 100%),
+    radial-gradient(1px 1px at 90px 80px, var(--sg-star), transparent 100%),
+    radial-gradient(1.6px 1.6px at 150px 40px, var(--sg-star), transparent 100%),
+    radial-gradient(1px 1px at 60px 120px, var(--sg-star), transparent 100%),
+    radial-gradient(1.2px 1.2px at 180px 150px, var(--sg-star), transparent 100%),
+    radial-gradient(1px 1px at 10px 170px, var(--sg-star), transparent 100%);
+  background-size: 200px 200px;
+  background-repeat: repeat;
+}
+
+.nebula {
+  position: absolute;
+  z-index: 0;
+  top: -200px;
+  right: -140px;
+  width: 480px;
+  height: 480px;
+  border-radius: 50%;
+  filter: blur(70px);
+  pointer-events: none;
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.28), transparent 70%);
+}
+
+.dashboard-hero {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.dashboard-hero h1 {
+  margin: 0 0 8px;
+  font-size: clamp(1.5rem, 1rem + 2.5vw, 2.25rem);
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: var(--sg-text-inverse-900);
+}
+
+.dashboard-hero h1 em {
+  font-style: normal;
+  color: var(--sg-brand);
+}
+
+.hero-copy {
+  margin: 0;
+  max-width: 48ch;
+  color: var(--sg-text-inverse-700);
+}
+
+.hero-weather {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: var(--sg-bg-elevated);
+  border: 1px solid var(--sg-border-dark);
+  color: var(--sg-text-inverse-900);
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.hero-weather .el-icon {
+  color: #fbbf24;
+}
+
+.dashboard-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+.result-count {
+  margin: 0 0 12px;
+  font-size: 0.85rem;
+  color: var(--sg-text-inverse-700);
+}
+
+.result-count b {
+  color: var(--sg-text-inverse-900);
+}
+
+.status-banner {
+  position: relative;
+  z-index: 1;
+  --el-alert-bg-color: var(--sg-bg-elevated);
+  border: 1px solid var(--sg-border-dark);
+}
+
+.status-banner :deep(.el-alert__title),
+.status-banner :deep(.el-alert__icon) {
+  color: var(--sg-text-inverse-700);
+}
+
+@media (max-width: 860px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .weather-dashboard {
+    padding: 16px;
+  }
+}
+</style>

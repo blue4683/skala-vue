@@ -56,4 +56,94 @@ const displayTemp = computed(() => {
   </article>
 </template>
 
-<style scoped></style>
+<style scoped>
+.city-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  border-radius: 14px;
+  background: var(--sg-bg-elevated-2);
+  border: 1px solid var(--sg-border-dark);
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    background-color 0.15s;
+}
+
+.city-card + .city-card {
+  margin-top: 10px;
+}
+
+.city-card:hover,
+.city-card:focus-visible {
+  border-color: var(--sg-brand);
+  outline: none;
+}
+
+.condition-icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  font-size: 1.3rem;
+  background: rgba(251, 191, 36, 0.15);
+}
+
+.condition-icon.rainy {
+  background: var(--sg-brand-soft);
+}
+
+.condition-icon.cloudy {
+  background: var(--sg-neutral-soft);
+}
+
+.city-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.city-heading {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--sg-text-inverse-900);
+  font-size: 0.95rem;
+}
+
+.city-heading .el-icon {
+  color: var(--sg-text-inverse-500);
+}
+
+.city-heading span {
+  color: var(--sg-text-inverse-500);
+  font-weight: 400;
+  font-size: 0.85rem;
+}
+
+.city-temp {
+  margin: 4px 0 8px;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--sg-text-inverse-500);
+}
+
+.city-temp b {
+  font-size: 1.3rem;
+  color: var(--sg-text-inverse-900);
+}
+
+.badge-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.detail-button {
+  flex-shrink: 0;
+}
+</style>

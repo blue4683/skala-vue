@@ -19,8 +19,7 @@ function timeLabel(ms) {
 <template>
   <aside class="site-detail-panel" aria-label="장소 상세">
     <header>
-      <p class="eyebrow">{{ site.region }}</p>
-      <h3>{{ site.name }}</h3>
+      <h3>{{ site.name }}<span class="region">{{ site.region }}</span></h3>
       <p class="requested-at">기준 시각 {{ requestedAt.toLocaleString('ko-KR') }}</p>
     </header>
 
@@ -57,31 +56,39 @@ function timeLabel(ms) {
 
 <style scoped>
 .site-detail-panel {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   gap: 14px;
   padding: 18px;
   border-radius: 16px;
-  background: #fff;
-  border: 1px solid #d8e8f5;
-}
-
-.eyebrow {
-  margin: 0;
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: #5590bd;
+  background: var(--sg-glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--sg-border);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.45);
 }
 
 h3 {
   margin: 2px 0;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.region {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--sg-ink-500);
 }
 
 .requested-at {
   margin: 0;
   font-size: 0.75rem;
-  color: #7c93a8;
+  color: var(--sg-ink-500);
 }
 
 .status-row {
@@ -95,48 +102,48 @@ h3 {
   border-radius: 999px;
   font-size: 0.75rem;
   font-weight: 700;
-  background: #e2e8f0;
-  color: #475569;
+  background: var(--sg-neutral-soft);
+  color: var(--sg-neutral);
 }
 
 .status-row.is-recommended .status-badge {
-  background: #ccfbf1;
-  color: #0d9488;
+  background: var(--sg-accent-soft);
+  color: var(--sg-accent);
 }
 .status-row.is-conditional .status-badge {
-  background: #fef3c7;
-  color: #b45309;
+  background: var(--sg-warning-soft);
+  color: var(--sg-warning);
 }
 .status-row.is-unavailable .status-badge {
-  background: #f1f5f9;
-  color: #94a3b8;
+  background: var(--sg-neutral-soft);
+  color: var(--sg-neutral);
 }
 
 .score {
   font-size: 1.4rem;
   font-weight: 800;
-  color: #183a5e;
+  color: var(--sg-ink-900);
 }
 
 .reason {
-  color: #7c93a8;
+  color: var(--sg-ink-500);
   font-size: 0.85rem;
 }
 
 .best-window {
   margin: 0;
   font-size: 0.82rem;
-  color: #35506b;
+  color: var(--sg-ink-700);
 }
 
 h4 {
   margin: 0 0 6px;
   font-size: 0.82rem;
-  color: #35506b;
+  color: var(--sg-ink-700);
 }
 
 footer {
-  border-top: 1px dashed #d8e8f5;
+  border-top: 1px dashed var(--sg-border);
   padding-top: 10px;
 }
 
@@ -144,6 +151,6 @@ footer {
 .access-note {
   margin: 0 0 4px;
   font-size: 0.72rem;
-  color: #94a3b8;
+  color: var(--sg-ink-500);
 }
 </style>
