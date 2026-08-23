@@ -1,12 +1,34 @@
+import { readFile } from 'node:fs/promises'
 import { fileURLToPath, URL } from 'node:url'
 
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
 
+const mapLibreDistUrl = new URL('./node_modules/maplibre-gl/dist/', import.meta.url)
+const mapLibreWorkerFiles = ['maplibre-gl-worker.mjs', 'maplibre-gl-shared.mjs']
+
+function mapLibreWorkerAssets() {
+  return {
+    name: 'maplibre-worker-assets',
+    apply: 'build',
+    async buildStart() {
+      await Promise.all(
+        mapLibreWorkerFiles.map(async (fileName) => {
+          this.emitFile({
+            type: 'asset',
+            fileName: `assets/${fileName}`,
+            source: await readFile(new URL(fileName, mapLibreDistUrl)),
+          })
+        }),
+      )
+    },
+  }
+}
+
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [vue(), vueDevTools()],
+  plugins: [vue(), vueDevTools(), mapLibreWorkerAssets()],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),

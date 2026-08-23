@@ -7,10 +7,11 @@ import {
   NavigationControl,
   setWorkerUrl,
 } from 'maplibre-gl'
-import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url'
 import 'maplibre-gl/dist/maplibre-gl.css'
 
-setWorkerUrl(maplibreWorkerUrl)
+if (import.meta.env.PROD) {
+  setWorkerUrl(`${import.meta.env.BASE_URL}assets/maplibre-gl-worker.mjs`)
+}
 
 const props = defineProps({
   sites: { type: Array, required: true }, // [{id, name, latitude, longitude}]
