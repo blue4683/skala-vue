@@ -1,0 +1,16 @@
+{
+  "rewrites": [
+    {
+      "source": "/khoa/:path*",
+      "destination": "https://apis.data.go.kr/1192136/tideFcstHghLw/:path*"
+    },
+    {
+      "source": "/kma/:path*",
+      "destination": "https://apis.data.go.kr/1360000/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

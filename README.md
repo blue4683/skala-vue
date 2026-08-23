@@ -200,3 +200,20 @@ components/*.vue        API 필드명(`main.temp`, `sys.sunset`)을 몰라도 �
 - 테스트가 실제로 검증하는지 뮤테이션으로 확인: `tideCurve.js`의 `Math.cos`를 `Math.sin`으로 바꿔보니 `tideCurve.test.js` 3케이스가 즉시 실패함(확인 후 원복) -> 실패하지 않았다면 그 테스트는 아무것도 검증하지 않는 것
 
 - 최종 `npm run test:unit`: 5개 파일(`tideCurve`/`conditionBands`/`grid`/`baseTime`/`segmentState`) 총 27케이스 전부 통과. `grid.test.js`가 1케이스뿐인 건 이상한 게 아니라, 그 함수가 분기 없는 순수 수식이라 알려진 정답 한 쌍이면 충분하기 때문(케이스 수는 로직의 분기 수를 따라감)
+
+## Vercel 배포 준비
+
+- **문제**: `npm run build`가 만드는 `dist/`는 정적 파일 덩어리일 뿐이라 서버가 아님 -> `vite.config.js`의 `server.proxy`(Stage 6·7의 `/khoa`, `/kma`)는 `npm run dev`에서만 동작하고 빌드 결과에는 아무 영향이 없음. 배포하면 Stage 6에서 봤던 CORS 에러가 그대로 재현됨
+
+- `vercel.json`을 프로젝트 루트(`package.json`이 있는 `skala-vue/`)에 추가 -> `vite.config.js`의 dev proxy 규칙을 Vercel `rewrites` 문법으로 그대로 옮김(`/khoa/:path*` -> KHOA 실제 엔드포인트, `/kma/:path*` -> KMA 실제 엔드포인트)
+    - 마지막에 `/(.*) -> /index.html` SPA fallback 규칙 추가 -> `createWebHistory()`를 쓰므로 `/scene`을 새로고침하면 정적 호스팅은 "그런 파일 없음"으로 404를 냄. `rewrites`는 **실제 파일이 있으면 동작하지 않으므로** 이 규칙을 맨 마지막에 둬도 `/assets/*.js` 같은 진짜 파일은 안전함
+
+- `npm run build && npm run preview`로 로컬에서 프로덕션 빌드를 먼저 확인 -> `dist/map/`에 `korea-coast.json`/`segments.json`이 그대로 복사됐고, `/scene` 같은 라우트로 직접 접근해도(새로고침) 200이 나옴(vite preview가 자체적으로 SPA 폴백을 함). `/khoa/...`는 이 환경에도 프록시가 없어 예상대로 정상 응답하지 않음 — 가이드가 말한 "배포 후 만날 문제를 미리 확인"이 그대로 재현됨
+
+- **여기까지가 이번 세션에서 가능한 부분**. 실제 배포(Vercel 계정 연결, 환경변수 3개 등록, Deploy 클릭)는 사용자의 Vercel 계정이 필요해 진행하지 못함. 남은 단계:
+    1. [vercel.com](https://vercel.com)에서 GitHub 계정으로 가입 → Add New Project → 이 저장소 선택
+    2. **Root Directory를 `skala-vue`로 지정** (저장소 루트가 아니라 그 하위에 `package.json`이 있으므로, 안 하면 "No package.json found" 에러)
+    3. Settings → Environment Variables에 `VITE_OWM_API_KEY`, `VITE_KHOA_API_KEY`, `VITE_KMA_API_KEY` 등록(Production/Preview/Development 전부)
+    4. Deploy, 이후 10-6 체크리스트(지도·SPA 새로고침·실시간 조회·404 페이지·모바일 폭)로 직접 검증
+
+- KMA 실 API 키를 아직 승인받지 못했다면 `useCoastalData.js`가 이미 목업(`buildMockForecast`)을 쓰고 있으므로 그 상태 그대로도 배포는 가능함(가이드 10-7의 "대안" 경로) — "실시간 조회" 버튼만 동작하지 않을 뿐 나머지는 전부 보임
