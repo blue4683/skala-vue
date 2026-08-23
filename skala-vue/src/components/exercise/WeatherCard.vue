@@ -1,6 +1,7 @@
 <script setup>
 import {computed} from 'vue'
 import {ArrowRight, Location} from '@element-plus/icons-vue'
+import {useConfigStore} from '@/stores/configStore'
 
 const props = defineProps({
     city: {type: Object, required: true},
@@ -8,10 +9,12 @@ const props = defineProps({
 
 const emit = defineEmits(['select-card', 'click-detail'])
 
-const displayTemp = computed(() => {
-    const rawTemp = props.city.temp
+const configStore = useConfigStore()
 
-    return rawTemp.toFixed(1)
+const displayTemp = computed(() => {
+    const celsius = props.city.temp
+    const value = configStore.unit === 'fahrenheit' ? (celsius * 9) / 5 + 32 : celsius
+    return value.toFixed(1)
 })
 </script>
 
@@ -31,7 +34,7 @@ const displayTemp = computed(() => {
                 <span>{{ city.status }}</span>
             </div>
             <p class="city-temp">
-                <b>{{ displayTemp }}</b>
+                <b>{{ displayTemp }}{{ configStore.unitSymbol }}</b>
                 <span>습도 {{ city.humidity }}%</span>
             </p>
             <div class="badge-row">
@@ -39,7 +42,7 @@ const displayTemp = computed(() => {
                     {{ city.temp >= 25 ? '더움' : '선선함' }}
                 </el-tag>
                 <el-tag type="warning" effect="light" round size="small">
-                    불쾌지수 {{ city.discomfortIndex.toFixed(1) }} {{ city.discomfortLevel.label }}
+                    불쾌지수 {{ city.discomfortIndex.toFixed(1) }} {{ city.discomforLevel.label }}
                 </el-tag>
             </div>
         </div>
