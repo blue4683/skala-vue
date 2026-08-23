@@ -19,6 +19,11 @@ const router = createRouter({
       component: () => import('../views/WeatherView.vue'),
     },
     {
+      path: '/map',
+      name: 'coastal-map',
+      component: () => import('../views/CoastalMapView.vue'),
+    },
+    {
       path: '/about',
       name: 'about',
       // route level code-splitting

@@ -24,6 +24,12 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (p) => p.replace(/^\/khoa/, '/1192136/tideFcstHghLw'),
       },
+      // 기상청 단기예보 조회서비스
+      '/kma': {
+        target: 'https://apis.data.go.kr',
+        changeOrigin: true,
+        rewrite: (p) => p.replace(/^\/kma/, '/1360000'),
+      },
     },
   },
 })

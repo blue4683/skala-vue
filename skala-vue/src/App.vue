@@ -16,6 +16,7 @@ const route = useRoute()
       <nav>
         <RouterLink to="/">Home</RouterLink>
         <RouterLink to="/scene">날씨 장면</RouterLink>
+        <RouterLink to="/map">해안 지도</RouterLink>
         <RouterLink to="/about">About</RouterLink>
       </nav>
       <UnitToggler v-if="route.path === '/'" />

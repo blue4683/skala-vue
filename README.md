@@ -141,3 +141,36 @@ components/*.vue        API 필드명(`main.temp`, `sys.sunset`)을 몰라도 �
 
 - `views/WeatherView.vue` -> `sceneWithSea = { ...scene, seaLevel: normalizedLevelAt(targetMs) }`로 Stage 5의 `SeaLayer`(그때는 `seaLevel`이 없어 렌더링되지 않던)를 실제로 움직이게 연결. 조석 차트를 드래그하면 씬의 해수면과 태양 위치가 `targetMs` 하나로 동시에 움직임
     - `mocks/tide/*.json` 6개(인천/부산 × 전날/당일/다음날)는 KHOA 원본 응답 형태 그대로 작성 -> `loadTideMock`은 `normalizeTideResponse`를 거치므로 weather mock과 달리 **정규화 전** 모양이어야 함
+
+## 해안 지도 (지리 시각화 · 규칙 기반 판정)
+
+- **점수화하지 않는다** 원칙을 전면 적용: "낚시 적합도 87점" 대신 `open`/`caution`/`blocked`/`nodata` 4단계로만 분류 -> 가중치는 근거를 설명할 수 없지만 "왜 이 색인가"는 규칙만으로 항상 답할 수 있음. 우선순위도 코드 순서로 드러남(데이터 없음 → 특보 → 규칙 미충족 → 통과)
+
+- `utils/grid.js` -> 기상청 단기예보는 위경도가 아니라 Lambert Conformal Conic 격자(nx, ny)를 씀. 공식은 기상청이 공개한 것을 그대로 옮기되, **남의 공식을 옮겼을 때는 알려진 정답 한 쌍으로 검증**한다는 원칙에 따라 `grid.test.js`에서 "서울시청 → nx:60, ny:127"로 테스트함
+
+- `utils/baseTime.js` -> 단기예보는 하루 8번 발표(02·05·08·...·23시)되고 발표 후 10분 뒤부터 조회 가능 -> `now = new Date()`를 기본 인자로 빼서 테스트 시 특정 시각을 주입할 수 있게 함, 00~02시에는 전날 23시 발표분으로 넘어가는 자정 처리 포함
+
+- `api/kmaForecast.js` -> 응답이 (시각, 항목, 값) **롱포맷**이라 `Map`으로 시각을 키잉해 한 번의 순회로 와이드포맷(`{time, TMP, WSD, WAV, ...}`)으로 피벗함(배열 `find`로 하면 O(n²))
+
+- `scripts/build-segments.mjs` -> 해안 지명 31곳의 격자 좌표를 **빌드타임에 한 번** 계산해 `public/map/segments.json`으로 구움. 해안선 폴리곤에서 자동 추출하는 대신 사람이 아는 지명 좌표를 손으로 큐레이션 -> "일회성 작업에 추상화 계층을 만들지 않는다" 원칙의 실제 사례. `node scripts/build-segments.mjs`로 재생성
+
+- `mocks/kma/forecast.js` -> `Math.random()` 대신 `Math.sin(seed)*10000`의 소수부를 쓰는 시드 난수로 목업 예보 생성 -> 새로고침마다 지도 색이 바뀌면 "코드 수정 때문인지 그냥 랜덤인지" 구분이 안 됨. 격자당 ~8% 확률로 `nodata`도 섞어서 정상 케이스만으로는 테스트 못 하는 예외 처리를 검증함
+
+- `utils/segmentState.js` -> 20줄. `!fc → nodata` → `warns.length → blocked` → `규칙 미충족 → caution` → `open` 순서 그대로가 우선순위. `reason` 배열을 함께 반환해 "왜 이 판정인가"를 텍스트로 보여줌
+
+- `data/rules.js` -> 판정 규칙을 `if`문 대신 배열(데이터)로 뺌 -> 사용자가 개별 토글할 수 있고, `label`이 그대로 툴팁 설명이 되고, 새 모드는 `RULES.xxx`만 추가하면 됨
+
+- `composables/useCoastalData.js` -> 구간은 31개지만 격자는 그보다 적음(인접 구간이 같은 5km 격자에 들어감) -> `new Map(segments.map(s => [\`${nx},${ny}\`, grid]))`로 문자열 키 dedupe 후 한 번만 조회. 공공 API 일일 호출 제한이 있어 중복 호출은 실제 비용임
+    - 이번 세션은 KMA 인증키 승인 절차 없이 진행해 `buildMockForecast`를 기본으로 사용(가이드 원본 코드도 동일한 선택). 실제 API 전환은 `fetchVillageForecast` 호출 한 줄로 교체 가능하도록 주석으로 남겨둠
+
+- `composables/useSegmentStates.js` -> 구간×시각 2차원 상태 테이블을 `computed`로 **사전 계산**(31구간 × 17시각 = 527칸). 슬라이더를 움직일 때마다 재계산하면 드래그가 버벅이므로, 이동은 배열 인덱싱만 하게 함
+
+- `components/KoreaMap.vue` -> `geoMercator().fitSize()`로 GeoJSON을 자동 스케일/이동. `projection([lon, lat])`처럼 **경도, 위도 순서**로 넘겨야 함(우리 `segments.json`은 `[lat, lon]`이라 뒤집어서 넘김) -> 순서를 틀리면 한반도가 태평양 한가운데로 감
+    - 색만으로 정보를 전달하지 않도록 3중 장치: `<title>`(스크린 리더용 사유 텍스트), `nodata`의 점선 테두리, 적록색약도 구분 가능한 청록/황토/자주 배색
+    - **지도 데이터 디버깅**: `public/map/korea-coast.json`(통계청 SGIS 시도 경계, 공공누리 제1유형, mapshaper로 단순화)을 처음 붙였을 때 지도가 아예 안 보이고 점 하나만 찍히는 문제가 있었음 -> 원인은 폴리곤 링의 방향(winding order)이 d3-geo가 기대하는 방향과 반대라서, d3가 "한국"이 아니라 "한국을 제외한 지구 전체"로 해석해 `fitSize`의 스케일이 완전히 어긋난 것. `@mapbox/geojson-rewind`로 방향을 교정해 해결함
+
+- `components/TimeSlider.vue` -> `TideTrack`과 달리 **네이티브 `<input type="range">`**를 씀. 값이 연속(임의 시각)이 아니라 이산(3시간 슬롯 17개)이라 커브 위 커서 같은 요구가 없고, 네이티브로 되는 걸 직접 만들 이유가 없음(키보드·터치·스크린 리더가 공짜). `update:modelValue`라는 표준 이름을 emit해 `v-model` 한 줄로 연결됨
+
+- `views/CoastalMapView.vue` -> 뷰가 40줄이 안 됨. 계산은 전부 composable/utils에 있고 뷰는 조립·표시만 함(Stage 3부터 지켜온 층 분리) -> `/map` 라우트로 등록하고 헤더에 "해안 지도" 링크 추가
+
+- `d3-geo`만 설치(`d3` 전체가 아님) -> d3는 30개 넘는 모듈 묶음인데 투영 기능만 필요해서 번들 크기를 줄임
