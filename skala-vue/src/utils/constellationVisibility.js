@@ -48,10 +48,13 @@ export function classifyConstellation(constellation, starPositions, limitingMagn
 
   const state = visible.length >= 3 ? 'clear' : visible.length >= 2 ? 'visible' : 'difficult'
 
-  // 화면에 대표로 보여줄 별: 보이는 별 중 가장 밝은(등급 숫자가 작은) 별, 없으면 원래 첫 번째 별의 위치
+  // 화면에 대표로 보여줄 별: 보이는 별 중 가장 밝은 별, 없으면 지평선에 가장 가까운 별.
+  // 후자를 첫 번째 별로 고정하면 일부가 지평선 위여도 별자리 전체가 아래로 잘못 표시될 수 있다.
   const best = visible.length
     ? visible.reduce((a, b) => (a.star.magnitude <= b.star.magnitude ? a : b))
-    : { star: constellation.keyStars[0], pos: starPositions[0] }
+    : constellation.keyStars
+        .map((star, i) => ({ star, pos: starPositions[i] }))
+        .reduce((a, b) => (a.pos.altitudeDegrees >= b.pos.altitudeDegrees ? a : b))
 
   return {
     state,
@@ -73,16 +76,20 @@ export function classifyConstellation(constellation, starPositions, limitingMagn
 export function evaluateConstellations(constellations, altAzFor, conditions) {
   const limitingMagnitude = estimateLimitingMagnitude(conditions)
 
-  return constellations.map((c) => {
+  return constellations.flatMap((c) => {
     const starPositions = c.keyStars.map((s) => altAzFor(s.raHours, s.decDegrees))
     const result = classifyConstellation(c, starPositions, limitingMagnitude)
-    return {
-      id: c.id,
-      nameKo: c.nameKo,
-      state: result.state,
-      visibleCount: result.visibleCount,
-      azimuthDegrees: result.best.azimuthDegrees,
-      altitudeDegrees: result.best.altitudeDegrees,
-    }
+    if (result.best.altitudeDegrees < 0) return []
+
+    return [
+      {
+        id: c.id,
+        nameKo: c.nameKo,
+        state: result.state,
+        visibleCount: result.visibleCount,
+        azimuthDegrees: result.best.azimuthDegrees,
+        altitudeDegrees: result.best.altitudeDegrees,
+      },
+    ]
   })
 }

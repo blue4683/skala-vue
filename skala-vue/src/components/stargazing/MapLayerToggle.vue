@@ -12,36 +12,83 @@ const LAYERS = [
 </script>
 
 <template>
-  <el-radio-group
-    class="layer-toggle"
-    :model-value="modelValue"
-    aria-label="지도 레이어 선택"
-    @update:model-value="emit('update:modelValue', $event)"
-  >
-    <el-radio-button v-for="l in LAYERS" :key="l.key" :value="l.key">{{ l.label }}</el-radio-button>
-  </el-radio-group>
+  <div class="layer-toggle" role="group" aria-label="지도 레이어 선택">
+    <button
+      v-for="layer in LAYERS"
+      :key="layer.key"
+      type="button"
+      class="layer-button"
+      :class="{ 'is-active': modelValue === layer.key }"
+      :aria-pressed="modelValue === layer.key"
+      @click="emit('update:modelValue', layer.key)"
+    >
+      {{ layer.label }}
+    </button>
+  </div>
 </template>
 
 <style scoped>
 .layer-toggle {
   position: relative;
   z-index: 1;
-  display: inline-flex;
-  flex-wrap: wrap;
+  display: inline-grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(78px, auto);
+  align-items: center;
+  gap: 4px;
   width: fit-content;
   padding: 4px;
-  border-radius: 999px;
-  background: var(--sg-surface);
+  border: 1px solid var(--sg-border);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.96);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-  --el-radio-button-checked-bg-color: var(--sg-brand);
-  --el-radio-button-checked-border-color: var(--sg-brand);
-  --el-radio-button-checked-text-color: #fff;
 }
 
-.layer-toggle :deep(.el-radio-button__inner) {
+.layer-button {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  margin: 0;
+  padding: 0 14px;
   border: none;
+  border-radius: 10px;
   background: transparent;
   color: var(--sg-ink-700);
-  box-shadow: none;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color 0.15s,
+    color 0.15s;
+}
+
+.layer-button:hover:not(.is-active) {
+  background: var(--sg-brand-soft);
+  color: var(--sg-brand-text);
+}
+
+.layer-button:focus-visible {
+  outline: 2px solid var(--sg-brand);
+  outline-offset: 2px;
+}
+
+.layer-button.is-active {
+  background: var(--sg-brand);
+  color: #fff;
+}
+
+@media (max-width: 380px) {
+  .layer-toggle {
+    grid-auto-columns: minmax(68px, auto);
+  }
+
+  .layer-button {
+    padding-inline: 10px;
+  }
 }
 </style>

@@ -21,7 +21,7 @@ function timeLabel(ms, timezone) {
 </script>
 
 <template>
-  <aside class="site-detail-panel" aria-label="장소 상세">
+  <aside class="site-detail-panel" aria-label="장소 상세" tabindex="0">
     <header>
       <h3>
         {{ site.name }}<span class="region">{{ site.region }}</span>
@@ -84,6 +84,10 @@ h3 {
   align-items: baseline;
   flex-wrap: wrap;
   gap: 8px;
+  color: var(--sg-ink-900);
+  font-size: 1.15rem;
+  font-weight: 800;
+  line-height: 1.3;
 }
 
 .region {

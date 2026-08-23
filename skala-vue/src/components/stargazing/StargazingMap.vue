@@ -162,7 +162,7 @@ watch(() => [props.scores, props.activeLayer, props.selectedSiteId], renderMarke
   position: relative;
   width: 100%;
   height: 100%;
-  min-height: 420px;
+  min-height: 0;
   border-radius: 16px;
   overflow: hidden;
   border: 1px solid var(--sg-border-dark);

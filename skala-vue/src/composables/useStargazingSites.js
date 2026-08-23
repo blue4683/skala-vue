@@ -109,6 +109,25 @@ export function useStargazingSites() {
   }
 
   /**
+   * 지도 비교용 — 각 도시의 오늘 밤 최고 관측 시각을 독립적으로 적용한다.
+   * 상세 패널의 시간 선택과 분리해 다른 도시의 마커 값이 함께 바뀌지 않게 한다.
+   */
+  function scoresAtBestTimes(now = new Date()) {
+    return sites.value.map((site) => {
+      const result = evaluateAt(site, defaultBestTime(site, now))
+      return {
+        id: site.id,
+        latitude: site.latitude,
+        longitude: site.longitude,
+        score: result.score,
+        status: result.status,
+        reason: result.reason,
+        factors: result.factors,
+      }
+    })
+  }
+
+  /**
    * 오늘 밤 전체 후보지 중 가장 좋은 관측 시간대를 찾아 그 시작 시각을 반환한다.
    * 후보지가 하나도 80점 이상 구간을 갖지 못하면 오늘 밤 첫 시각으로 대체한다.
    */
@@ -131,6 +150,7 @@ export function useStargazingSites() {
     evaluateAt,
     buildTonightSlots,
     scoresAt,
+    scoresAtBestTimes,
     defaultBestTime,
   }
 }

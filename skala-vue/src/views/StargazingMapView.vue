@@ -16,16 +16,23 @@ const {
   evaluateAt,
   buildTonightSlots,
   scoresAt,
+  scoresAtBestTimes,
   defaultBestTime,
 } = useStargazingSites()
 
 const activeLayer = ref('recommendation')
+const comparisonDate = new Date()
 const selectedSiteId = ref(sites.value[0]?.id ?? null)
 const selectedSite = computed(() => sites.value.find((s) => s.id === selectedSiteId.value) ?? null)
 const selectedTime = ref(defaultBestTime(selectedSite.value))
 const timeSlots = computed(() => buildTonightSlots(selectedSite.value))
 
-const siteScores = computed(() => scoresAt(selectedTime.value))
+const siteScores = computed(() => scoresAtBestTimes(comparisonDate))
+
+const layerBasis = computed(() => {
+  if (activeLayer.value === 'lightPollution') return 'VIIRS 월간 야간광 기반 상대 지수'
+  return '도시별 오늘 밤 기본 관측 시각 기준 · 상세 시간 선택과 별도'
+})
 
 const selectedEvaluation = computed(() =>
   selectedSite.value ? evaluateAt(selectedSite.value, selectedTime.value) : null,
@@ -87,7 +94,10 @@ onMounted(async () => {
       </p>
     </section>
 
-    <MapLayerToggle v-model="activeLayer" />
+    <div class="layer-controls">
+      <MapLayerToggle v-model="activeLayer" />
+      <p class="layer-basis">{{ layerBasis }}</p>
+    </div>
 
     <p class="live-status" role="status">
       <span v-if="loading">Open-Meteo·VIIRS 실시간 데이터를 불러오는 중…</span>
@@ -117,7 +127,7 @@ onMounted(async () => {
     <section class="time-bar">
       <div class="time-bar-label">
         <p class="time-bar-title">오늘 밤 관측 창</p>
-        <p class="time-bar-hint">시간을 누르면 지도와 별자리가 갱신됩니다.</p>
+        <p class="time-bar-hint">시간을 누르면 선택한 도시의 상세 정보와 별자리가 갱신됩니다.</p>
       </div>
       <ObservationTimeRibbon
         v-if="timeSlots.length"
@@ -201,6 +211,21 @@ onMounted(async () => {
   font-size: 0.78rem;
 }
 
+.layer-controls {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+
+.layer-basis {
+  margin: 0;
+  color: var(--sg-text-inverse-500);
+  font-size: 0.75rem;
+}
+
 .live-status .is-error {
   color: var(--sg-warning);
 }
@@ -232,10 +257,21 @@ onMounted(async () => {
   grid-template-columns: 1fr 320px;
   gap: 16px;
   align-items: stretch;
+  height: 620px;
+  min-height: 0;
 }
 
 .map-pane {
-  min-height: 520px;
+  min-height: 0;
+}
+
+.detail-pane {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  scrollbar-color: var(--sg-ink-500) transparent;
+  scrollbar-width: thin;
 }
 
 .time-bar {
@@ -280,10 +316,16 @@ onMounted(async () => {
 @media (max-width: 860px) {
   .map-layout {
     grid-template-columns: 1fr;
+    height: auto;
   }
 
   .map-pane {
     height: 360px;
+    min-height: 360px;
+  }
+
+  .detail-pane {
+    height: 560px;
   }
 }
 

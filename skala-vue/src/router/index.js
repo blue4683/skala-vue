@@ -20,13 +20,11 @@ const router = createRouter({
     },
     {
       path: '/scene',
-      name: 'scene',
-      component: () => import('../views/WeatherView.vue'),
+      redirect: '/',
     },
     {
       path: '/map',
-      name: 'coastal-map',
-      component: () => import('../views/CoastalMapView.vue'),
+      redirect: '/',
     },
     {
       path: '/about',

@@ -99,9 +99,18 @@ describe('evaluateConstellations', () => {
     expect(results[0]).toMatchObject({ id: 'CYG', nameKo: '백조자리', state: 'clear' })
   })
 
-  it('전부 지평선 아래면 모든 별자리가 관측 어려움이다', () => {
+  it('전부 지평선 아래인 별자리는 결과에서 제외한다', () => {
     const altAzFor = () => ({ altitudeDegrees: -10, azimuthDegrees: 0 })
     const results = evaluateConstellations([CYGNUS], altAzFor, PERFECT_SKY)
-    expect(results[0].state).toBe('difficult')
+    expect(results).toEqual([])
+  })
+
+  it('관측 고도에는 못 미쳐도 일부 별이 지평선 위면 관측 어려움으로 남긴다', () => {
+    const altitudes = [10, -5, -15]
+    let index = 0
+    const altAzFor = () => ({ altitudeDegrees: altitudes[index++], azimuthDegrees: 90 })
+    const results = evaluateConstellations([CYGNUS], altAzFor, PERFECT_SKY)
+
+    expect(results[0]).toMatchObject({ state: 'difficult', altitudeDegrees: 10 })
   })
 })
